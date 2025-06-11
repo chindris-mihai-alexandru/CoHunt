@@ -9,6 +9,19 @@ const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 60; // 60 requests per minute
 const API_PATHS = ["/api/match-jobs", "/api/summarize"];
 
+// Cleanup old entries to prevent memory leaks
+const cleanupOldEntries = () => {
+  const now = Date.now();
+  Object.keys(ipRequestStore).forEach(ip => {
+    if (now - ipRequestStore[ip].lastReset > RATE_LIMIT_WINDOW_MS * 2) {
+      delete ipRequestStore[ip];
+    }
+  });
+};
+
+// Run cleanup periodically
+setInterval(cleanupOldEntries, RATE_LIMIT_WINDOW_MS);
+
 export function middleware(request: NextRequest) {
   // Only apply rate limiting to API routes
   if (!API_PATHS.some((path) => request.nextUrl.pathname.startsWith(path))) {

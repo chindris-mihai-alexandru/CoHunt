@@ -1,6 +1,7 @@
 from supabase import create_client
 import os
 from typing import List
+from datetime import datetime
 from .models import JobSource
 
 
@@ -27,6 +28,6 @@ class Database:
 
     def update_last_checked(self, url: str) -> None:
         """Update the last checked timestamp for a job source"""
-        self.client.table("job_sources").update({"last_checked": "now()"}).eq(
+        self.client.table("job_sources").update({"last_checked": datetime.utcnow().isoformat()}).eq(
             "url", url
         ).execute()

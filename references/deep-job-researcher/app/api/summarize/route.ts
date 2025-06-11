@@ -300,6 +300,18 @@ Respond ONLY with a valid JSON object containing these keys:
       { status: 500 },
     );
   } finally {
-  
+    // Cleanup resources to prevent quota issues
+    try {
+      if (fileId) {
+        await openai.files.del(fileId);
+        console.log(`Cleaned up file: ${fileId}`);
+      }
+      if (threadId) {
+        await openai.beta.threads.del(threadId);
+        console.log(`Cleaned up thread: ${threadId}`);
+      }
+    } catch (cleanupError) {
+      console.warn("Cleanup error:", cleanupError);
+    }
   }
 }

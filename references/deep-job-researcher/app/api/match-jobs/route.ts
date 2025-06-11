@@ -147,9 +147,9 @@ export async function POST(request: Request) {
 
     console.log("Calling OpenAI API for job matching...");
 
-    // Call OpenAI API with o3 model as specified in requirements
+    // Call OpenAI API with GPT-4 Turbo model
     const response = await openai.chat.completions.create({
-      model: "o3",
+      model: "gpt-4-turbo",
       messages: [
         {
           role: "system",
