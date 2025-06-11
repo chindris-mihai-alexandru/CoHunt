@@ -1,0 +1,23 @@
+John Doe
+Software Tester
+Email: john.doe@email.com
+Phone: +354 123 4567
+
+EXPERIENCE:
+- 5 years of software testing experience
+- Automated testing with Selenium
+- Manual testing methodologies
+- Bug tracking and reporting
+- Test case development
+
+SKILLS:
+- Selenium WebDriver
+- TestNG, JUnit
+- JIRA, Bugzilla
+- API Testing with Postman
+- Performance Testing
+- Agile/Scrum methodologies
+
+EDUCATION:
+- Bachelor's in Computer Science
+- Certified Software Tester (ISTQB)
