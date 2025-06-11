@@ -1,10 +1,10 @@
 import React from "react";
 import ReusableSidebar from "./ReusableSidebar";
-import ApiKeyForm from "./ApiKeyForm";
+import ApiKeyInfo from "./ApiKeyInfo";
 import { Settings } from "lucide-react";
 
 interface ApiKeySidebarProps {
-  onApiKeySet: (firecrawlKey: string) => void;
+  onApiKeySet: (configured: boolean) => void;
   apiKeysConfigured: boolean;
 }
 
@@ -14,17 +14,17 @@ const ApiKeySidebar: React.FC<ApiKeySidebarProps> = ({
 }) => {
   return (
     <ReusableSidebar
-      title='API Settings'
-      subtitle='Configure your API keys'
+      title='API Configuration'
+      subtitle='Server-side API management'
       buttonIcon={<Settings size={24} />}
-      buttonLabel='Toggle API Settings'
-      isConfigured={apiKeysConfigured}
+      buttonLabel='Toggle API Info'
+      isConfigured={true} // Always configured on server
       statusText={{
-        configured: "API Keys ✓",
-        notConfigured: "Configure API Keys",
+        configured: "APIs Configured ✓",
+        notConfigured: "Configure APIs",
       }}
       headerClassName='bg-gradient-to-r from-orange-500 to-orange-600'>
-      <ApiKeyForm onApiKeySet={onApiKeySet} />
+      <ApiKeyInfo onApiKeySet={onApiKeySet} />
     </ReusableSidebar>
   );
 };

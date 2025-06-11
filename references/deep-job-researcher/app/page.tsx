@@ -11,12 +11,12 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import ApiKeySidebar from "./components/SideBar/ApiKeySidebar";
 import ResultsSection from "./components/Results/ResultsSection";
 import { apiService } from "./services/api";
-import { JobData, ResumeData, JobSearchFilters } from "./services/firecrawl";
+import { JobData, ResumeData, JobSearchFilters } from "./services/firecrawl-client";
 
 export default function Home() {
-  const handleApiKeySet = (firecrawlKey: string) => {
-    console.log("API Key set:", firecrawlKey.substring(0, 5) + "...");
-    setApiKeysConfigured(true);
+  const handleApiKeySet = (configured: boolean) => {
+    console.log("API configured:", configured);
+    setApiKeysConfigured(configured);
   };
 
   const handleUrlChange = (url: string) => {
@@ -121,7 +121,7 @@ export default function Home() {
     }
   };
 
-  const [apiKeysConfigured, setApiKeysConfigured] = useState(false);
+  const [apiKeysConfigured, setApiKeysConfigured] = useState(true); // Always true for server-side config
   const [showOutput, setShowOutput] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [isUrlMode, setIsUrlMode] = useState(true);

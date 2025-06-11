@@ -3,36 +3,14 @@ import {
   ResumeData,
   JobData,
   JobSearchFilters,
-} from "./firecrawl";
+} from "./firecrawl-client";
 
 // Progress update callback type
 export type ProgressCallback = (message: string) => void;
 
 class ApiService {
-  private FIRECRAWL_API_KEY_STORAGE_KEY = "firecrawl-api-key";
-
-  // Set the Firecrawl API key in local storage
-  setFirecrawlApiKey(key: string) {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(this.FIRECRAWL_API_KEY_STORAGE_KEY, key);
-      // Also set the key in the firecrawl service
-      firecrawlService.setApiKey(key);
-    }
-  }
-
-  // Get the Firecrawl API key from local storage
-  getFirecrawlApiKey(): string | null {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(this.FIRECRAWL_API_KEY_STORAGE_KEY);
-    }
-    return null;
-  }
-
-  // Clear the Firecrawl API key from local storage
-  clearFirecrawlApiKey(): void {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem(this.FIRECRAWL_API_KEY_STORAGE_KEY);
-  }
+  // Note: API key is now managed server-side via environment variables
+  // No client-side storage of sensitive API keys
 
   // Process a profile URL and find matching jobs
   async analyzeProfileUrl(
