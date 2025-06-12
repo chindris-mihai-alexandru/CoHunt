@@ -1,110 +1,156 @@
 import { NextRequest, NextResponse } from 'next/server';
-import FirecrawlApp from '@mendable/firecrawl-js';
+import { createClient } from '@/lib/supabase/server';
+import { PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
-import { hasUserResume } from '@/lib/session-store';
+import { JobScraper } from '@/lib/jobs/scraper';
 
-const firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY });
+const prisma = new PrismaClient();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(request: NextRequest) {
   try {
-    const { query, location, jobType, sessionId } = await request.json();
-
-    // Check if user has uploaded a resume using session ID
-    const userHasResume = sessionId ? hasUserResume(sessionId) : false;
-    
-    console.log('Search request:', { query, location, sessionId, userHasResume }); // Debug log
+    const { query, location, jobType } = await request.json();
 
     if (!query) {
       return NextResponse.json({ error: 'Search query is required' }, { status: 400 });
     }
 
-    // Common job search URLs
-    const jobSites = [
-      `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(query)}&location=${encodeURIComponent(location || '')}`,
-      `https://www.indeed.com/jobs?q=${encodeURIComponent(query)}&l=${encodeURIComponent(location || '')}`,
-      `https://jobs.google.com/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location || '')}`
-    ];
+    // Get authenticated user
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // Create realistic job postings with direct application links
-    const searchLocation = location || "Remote";
-    const isIceland = searchLocation.toLowerCase().includes('iceland');
-    
-    // Generate realistic job data with actual company patterns and apply links
-    const mockJobs = [
-      {
-        title: `${query}`,
-        company: isIceland ? "Advania Iceland" : "Microsoft",
-        location: searchLocation,
-        description: `We are seeking an experienced ${query} to join our growing team in ${searchLocation}. You will be responsible for ensuring software quality through comprehensive testing strategies, automation frameworks, and collaboration with development teams.`,
-        url: `mailto:careers@${isIceland ? 'advania' : 'microsoft'}.com?subject=Application for ${encodeURIComponent(query)} - ${encodeURIComponent(searchLocation)}&body=Dear Hiring Manager,%0A%0AI am interested in applying for the ${encodeURIComponent(query)} position in ${encodeURIComponent(searchLocation)}.%0A%0APlease find my resume attached.%0A%0ABest regards`,
-        applyUrl: `https://careers.${isIceland ? 'advania.com' : 'microsoft.com'}/job-application`,
-        salary: isIceland ? "4,200,000 - 5,500,000 ISK" : "$95,000 - $125,000",
-        type: jobType || "Full-time",
-        jobId: "ADV-2025-001",
-        postedDate: "2 days ago"
-      },
-      {
-        title: `Senior ${query}`,
-        company: isIceland ? "CCP Games" : "Amazon",
-        location: searchLocation,
-        description: `Join our team as a Senior ${query} where you'll lead testing initiatives for cutting-edge software products. We're looking for someone with 5+ years of experience in test automation, performance testing, and mentoring junior team members.`,
-        url: `mailto:jobs@${isIceland ? 'ccpgames' : 'amazon'}.com?subject=Application for Senior ${encodeURIComponent(query)} - ${encodeURIComponent(searchLocation)}&body=Dear Hiring Team,%0A%0AI would like to apply for the Senior ${encodeURIComponent(query)} role in ${encodeURIComponent(searchLocation)}.%0A%0AAttached is my resume for your review.%0A%0AThank you`,
-        applyUrl: `https://careers.${isIceland ? 'ccpgames.com' : 'amazon.jobs'}/apply`,
-        salary: isIceland ? "5,800,000 - 7,200,000 ISK" : "$135,000 - $165,000",
-        type: jobType || "Full-time",
-        jobId: "CCP-2025-ST-002",
-        postedDate: "1 day ago"
-      },
-      {
-        title: `${query} Automation Engineer`,
-        company: isIceland ? "Marel" : "Google",
-        location: searchLocation,
-        description: `We're hiring a ${query} Automation Engineer to design and implement comprehensive test automation frameworks. You'll work with modern tools like Selenium, Cypress, and CI/CD pipelines to ensure product quality.`,
-        url: `mailto:recruitment@${isIceland ? 'marel' : 'google'}.com?subject=Application for ${encodeURIComponent(query)} Automation Engineer - ${encodeURIComponent(searchLocation)}&body=Hello,%0A%0AI am applying for the ${encodeURIComponent(query)} Automation Engineer position.%0A%0APlease consider my attached application.%0A%0ABest regards`,
-        applyUrl: `https://careers.${isIceland ? 'marel.com' : 'google.com'}/jobs/apply`,
-        salary: isIceland ? "4,800,000 - 6,200,000 ISK" : "$105,000 - $140,000",
-        type: jobType || "Full-time",
-        jobId: "MAR-AUT-003",
-        postedDate: "3 days ago"
-      },
-      {
-        title: `Lead ${query}`,
-        company: isIceland ? "Icebreaker" : "Meta",
-        location: searchLocation,
-        description: `Lead our testing team as a ${query} with responsibility for strategy development, team management, and ensuring highest quality standards. This role requires strong leadership skills and deep technical expertise.`,
-        url: `mailto:talent@${isIceland ? 'icebreaker' : 'meta'}.com?subject=Application for Lead ${encodeURIComponent(query)} - ${encodeURIComponent(searchLocation)}&body=Dear Recruitment Team,%0A%0AI'm interested in the Lead ${encodeURIComponent(query)} position in ${encodeURIComponent(searchLocation)}.%0A%0APlease find my resume and cover letter attached.%0A%0AKind regards`,
-        applyUrl: `https://careers.${isIceland ? 'icebreaker.is' : 'metacareers.com'}/apply`,
-        salary: isIceland ? "7,500,000 - 9,200,000 ISK" : "$160,000 - $200,000",
-        type: jobType || "Full-time",
-        jobId: "ICE-LEAD-004",
-        postedDate: "5 days ago"
-      },
-      {
-        title: `Junior ${query}`,
-        company: isIceland ? "Tempo Software" : "Netflix",
-        location: searchLocation,
-        description: `Perfect entry-level opportunity for a Junior ${query}. You'll receive mentorship, training on industry-standard tools, and hands-on experience with agile testing methodologies. Great for recent graduates or career changers.`,
-        url: `mailto:careers@${isIceland ? 'tempo' : 'netflix'}.com?subject=Application for Junior ${encodeURIComponent(query)} - ${encodeURIComponent(searchLocation)}&body=Hi there,%0A%0AI would like to apply for the Junior ${encodeURIComponent(query)} role.%0A%0AAttached is my resume. I'm excited about this opportunity!%0A%0AThank you`,
-        applyUrl: `https://careers.${isIceland ? 'tempo.io' : 'netflix.com'}/apply-now`,
-        salary: isIceland ? "3,200,000 - 4,200,000 ISK" : "$70,000 - $90,000",
-        type: jobType || "Full-time",
-        jobId: "TEMP-JUN-005",
-        postedDate: "1 week ago"
+    // Check search limits for non-premium users
+    if (user) {
+      const userData = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { isPremium: true }
+      });
+
+      if (!userData?.isPremium) {
+        // Check today's search count
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const searchCount = await prisma.search.count({
+          where: {
+            userId: user.id,
+            createdAt: { gte: today }
+          }
+        });
+
+        const limit = parseInt(process.env.FREE_SEARCHES_PER_DAY || '3');
+        if (searchCount >= limit) {
+          return NextResponse.json(
+            { error: 'Daily search limit reached. Upgrade to premium for unlimited searches.' },
+            { status: 429 }
+          );
+        }
       }
-    ];
 
-    // Show match scores only if resume is uploaded
-    const matchScores = [92, 85, 78, 88, 75];
-    const jobsForResponse = mockJobs.map((job, index) => ({
-      ...job,
-      // Show realistic match scores if resume is uploaded
-      matchScore: userHasResume ? matchScores[index] : undefined
-    }));
+      // Record the search
+      await prisma.search.create({
+        data: {
+          userId: user.id,
+          query,
+          location,
+          jobType
+        }
+      });
+    }
+    // First, check if we have recent jobs in database
+    const recentJobs = await prisma.job.findMany({
+      where: {
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { description: { contains: query, mode: 'insensitive' } }
+        ],
+        location: location ? { contains: location, mode: 'insensitive' } : undefined,
+        isActive: true,
+        scrapedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24 hours
+      },
+      take: 20,
+      orderBy: { scrapedAt: 'desc' }
+    });
 
-    console.log('Returning jobs with userHasResume:', userHasResume, 'First job matchScore:', jobsForResponse[0].matchScore); // Debug log
+    let jobs = recentJobs;
 
-    return NextResponse.json({ jobs: jobsForResponse });
+    // If we don't have enough recent jobs, scrape new ones
+    if (jobs.length < 5) {
+      const scraper = new JobScraper();
+      await scraper.scrapeAndSaveJobs(query, location || '');
+      
+      // Fetch again after scraping
+      jobs = await prisma.job.findMany({
+        where: {
+          OR: [
+            { title: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } }
+          ],
+          location: location ? { contains: location, mode: 'insensitive' } : undefined,
+          isActive: true
+        },
+        take: 20,
+        orderBy: { scrapedAt: 'desc' }
+      });
+    }
+
+    // Calculate match scores if user has resume
+    let jobsWithScores = jobs;
+    if (user) {
+      const userData = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { resumeText: true }
+      });
+
+      if (userData?.resumeText) {
+        // Use OpenAI to calculate match scores
+        const matchPromises = jobs.map(async (job) => {
+          try {
+            const response = await openai.chat.completions.create({
+              model: "gpt-3.5-turbo",
+              messages: [
+                {
+                  role: "system",
+                  content: "You are a job matching expert. Rate how well this job matches the candidate's resume on a scale of 0-100."
+                },
+                {
+                  role: "user",
+                  content: `Resume: ${userData.resumeText}\n\nJob: ${job.title} at ${job.company}\n${job.description}\n\nProvide only a number between 0-100.`
+                }
+              ],
+              max_tokens: 10,
+              temperature: 0.3,
+            });
+
+            let score = parseInt(response.choices[0].message.content || '0');
+            score = isNaN(score) ? 0 : score;
+            return { ...job, matchScore: Math.min(100, Math.max(0, score)) };
+          } catch (error) {
+            console.error('Error calculating match score:', error);
+            return { ...job, matchScore: undefined };
+          }
+        });
+
+        jobsWithScores = await Promise.all(matchPromises);
+        
+        // Sort by match score
+        jobsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+      }
+    }
+
+    // Record search history
+    if (user) {
+      await prisma.searchHistory.create({
+        data: {
+          userId: user.id,
+          query,
+          location,
+          resultsCount: jobsWithScores.length
+        }
+      });
+    }
+
+    return NextResponse.json({ jobs: jobsWithScores });
 
   } catch (error) {
     console.error('Job search error:', error);

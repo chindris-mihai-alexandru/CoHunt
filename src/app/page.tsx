@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { Job } from '@/types/job';
+import { useAuth } from '@/contexts/AuthContext';
+import LoginModal from '@/components/auth/LoginModal';
+import SignupModal from '@/components/auth/SignupModal';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,21 +16,33 @@ export default function Home() {
   const [hasSearched, setHasSearched] = useState(false);
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [isUploadingResume, setIsUploadingResume] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  
+  const { user, signOut, searchesRemaining, isPremium } = useAuth();
 
-  // Load session from localStorage on component mount
+  // Check if user has resume uploaded
   useEffect(() => {
-    const savedSessionId = localStorage.getItem('cohunt-session-id');
-    const savedResumeStatus = localStorage.getItem('cohunt-resume-uploaded');
-    if (savedSessionId && savedResumeStatus === 'true') {
-      setSessionId(savedSessionId);
-      setResumeUploaded(true);
+    if (user) {
+      // Check if user has resume in their profile
+      checkUserResume();
     }
-  }, []);
+  }, [user]);
+
+  const checkUserResume = async () => {
+    // This will be handled by the auth context
+    // For now, we'll use the resumeUploaded state
+  };
 
   const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (!user) {
+      toast.error('Please sign in to upload your resume');
+      setShowLoginModal(true);
+      return;
+    }
 
     setIsUploadingResume(true);
     try {
@@ -38,21 +55,16 @@ export default function Home() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
         setResumeUploaded(true);
-        setSessionId(data.sessionId);
-        // Save to localStorage for persistence
-        localStorage.setItem('cohunt-session-id', data.sessionId);
-        localStorage.setItem('cohunt-resume-uploaded', 'true');
-        console.log('Resume uploaded successfully:', data.message);
-        console.log('Session ID:', data.sessionId);
+        toast.success('Resume uploaded successfully!');
       } else {
         const errorData = await response.json();
-        console.error('Resume upload failed:', errorData.error || 'Unknown error');
-        alert('Resume upload failed: ' + (errorData.error || 'Unknown error'));
+        toast.error(errorData.error || 'Failed to upload resume');
       }
     } catch (error) {
       console.error('Resume upload error:', error);
+      toast.error('Failed to upload resume');
     } finally {
       setIsUploadingResume(false);
     }
@@ -61,7 +73,11 @@ export default function Home() {
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     
-    console.log('Search with sessionId:', sessionId); // Debug log
+    // Check if user has searches remaining (for non-premium users)
+    if (user && !isPremium && searchesRemaining <= 0) {
+      toast.error('Daily search limit reached. Upgrade to premium for unlimited searches.');
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -73,23 +89,27 @@ export default function Home() {
         body: JSON.stringify({
           query: searchQuery,
           location: location,
-          sessionId: sessionId,
+          jobType: null,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Search response:', data);
-        console.log('First job match score:', data.jobs[0]?.matchScore);
         setJobs(data.jobs);
         setHasSearched(true);
+        
+        // Note: refreshUserData will be called from the component context
       } else {
         const errorData = await response.json();
-        console.error('Search failed:', errorData.error || 'Unknown error');
-        alert('Search failed: ' + (errorData.error || 'Unknown error'));
+        if (response.status === 429) {
+          toast.error(errorData.error);
+        } else {
+          toast.error(errorData.error || 'Failed to search jobs');
+        }
       }
     } catch (error) {
       console.error('Search error:', error);
+      toast.error('Failed to search jobs');
     } finally {
       setIsLoading(false);
     }
@@ -107,10 +127,46 @@ export default function Home() {
               </div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">CoHunt</h1>
             </div>
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-8 items-center">
               <a href="#features" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Features</a>
               <a href="#about" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">About</a>
               <a href="#pricing" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Pricing</a>
+              
+              {user ? (
+                <>
+                  <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
+                    Dashboard
+                  </Link>
+                  <div className="flex items-center gap-4">
+                    {!isPremium && (
+                      <span className="text-sm text-gray-500">
+                        {searchesRemaining} searches left today
+                      </span>
+                    )}
+                    <button
+                      onClick={() => signOut()}
+                      className="px-4 py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowLoginModal(true)}
+                    className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => setShowSignupModal(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Sign Up Free
+                  </button>
+                </>
+              )}
             </nav>
           </div>
         </div>
@@ -149,13 +205,26 @@ export default function Home() {
               ) : (
                 <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                   <span>✓</span>
-                  <span>Resume uploaded! You'll now see match scores for jobs.</span>
+                  <span>Resume uploaded! You&apos;ll now see match scores for jobs.</span>
                   <button 
-                    onClick={() => {
+                    onClick={async () => {
                       setResumeUploaded(false);
-                      setSessionId(null);
-                      localStorage.removeItem('cohunt-session-id');
-                      localStorage.removeItem('cohunt-resume-uploaded');
+                      // Clear resume from user profile
+                      if (user) {
+                        try {
+                          const response = await fetch('/api/clear-resume', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                          });
+                          if (response.ok) {
+                            toast.success('Resume cleared');
+                          }
+                        } catch (error) {
+                          console.error('Error clearing resume:', error);
+                        }
+                      }
                     }}
                     className="text-blue-600 dark:text-blue-400 hover:underline ml-2"
                   >
@@ -315,6 +384,25 @@ export default function Home() {
           )}
         </div>
       </main>
+
+      {/* Auth Modals */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToSignup={() => {
+          setShowLoginModal(false);
+          setShowSignupModal(true);
+        }}
+      />
+
+      <SignupModal
+        isOpen={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        onSwitchToLogin={() => {
+          setShowSignupModal(false);
+          setShowLoginModal(true);
+        }}
+      />
     </div>
   );
 }
