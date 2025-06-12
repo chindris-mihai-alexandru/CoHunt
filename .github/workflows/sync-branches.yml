@@ -1,0 +1,33 @@
+name: Sync Branches
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+      
+      - name: Sync claude branch
+        run: |
+          git checkout claude || git checkout -b claude
+          git reset --hard origin/main
+          git push origin claude --force-with-lease
+      
+      - name: Sync cursor branch
+        run: |
+          git checkout cursor || git checkout -b cursor
+          git reset --hard origin/main
+          git push origin cursor --force-with-lease
