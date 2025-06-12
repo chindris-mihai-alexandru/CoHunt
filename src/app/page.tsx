@@ -207,9 +207,24 @@ export default function Home() {
                   <span>✓</span>
                   <span>Resume uploaded! You&apos;ll now see match scores for jobs.</span>
                   <button 
-                    onClick={() => {
+                    onClick={async () => {
                       setResumeUploaded(false);
-                      // TODO: Clear resume from user profile
+                      // Clear resume from user profile
+                      if (user) {
+                        try {
+                          const response = await fetch('/api/clear-resume', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                          });
+                          if (response.ok) {
+                            toast.success('Resume cleared');
+                          }
+                        } catch (error) {
+                          console.error('Error clearing resume:', error);
+                        }
+                      }
                     }}
                     className="text-blue-600 dark:text-blue-400 hover:underline ml-2"
                   >

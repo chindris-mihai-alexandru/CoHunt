@@ -18,15 +18,23 @@ interface ScrapedJob {
 }
 
 export class JobScraper {
+  private async delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   async scrapeIndeed(query: string, location: string = ''): Promise<ScrapedJob[]> {
     const jobs: ScrapedJob[] = [];
     
     try {
+      // Add delay to avoid rate limiting
+      await this.delay(1000);
+      
       const url = `https://www.indeed.com/jobs?q=${encodeURIComponent(query)}&l=${encodeURIComponent(location)}`;
       const response = await axios.get(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+        },
+        timeout: 10000 // 10 second timeout
       });
 
       const $ = cheerio.load(response.data);
@@ -51,6 +59,7 @@ export class JobScraper {
       });
     } catch (error) {
       console.error('Error scraping Indeed:', error);
+      // Don't throw, just return empty array to allow other sources to continue
     }
 
     return jobs;
@@ -101,5 +110,9 @@ export class JobScraper {
     await this.saveJobsToDatabase(allJobs);
     
     return allJobs.length;
+  }
+  
+  async disconnect(): Promise<void> {
+    await prisma.$disconnect();
   }
 } 

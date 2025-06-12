@@ -11,40 +11,44 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  try {
-    const scraper = new JobScraper();
-    
-    // Get popular search queries from the last 7 days
-    const popularSearches = await prisma.searchHistory.groupBy({
-      by: ['query'],
-      _count: {
-        query: true
-      },
-      where: {
-        createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        }
-      },
-      orderBy: {
-        _count: {
-          query: 'desc'
-        }
-      },
-      take: 20
-    });
+  const scraper = new JobScraper();
 
-    // Scrape jobs for popular searches
+  try {
+    // Popular search queries to keep jobs fresh
+    const queries = [
+      'software engineer',
+      'frontend developer',
+      'backend developer',
+      'full stack developer',
+      'data scientist',
+      'product manager',
+      'designer',
+      'devops engineer'
+    ];
+
+    const locations = ['Remote', 'New York', 'San Francisco', 'London', 'Berlin'];
+
     let totalJobsScraped = 0;
-    for (const search of popularSearches) {
-      const jobsCount = await scraper.scrapeAndSaveJobs(search.query);
-      totalJobsScraped += jobsCount;
+
+    // Scrape jobs for various combinations
+    for (const query of queries) {
+      for (const location of locations) {
+        const jobsCount = await scraper.scrapeAndSaveJobs(query, location);
+        totalJobsScraped += jobsCount;
+        
+        // Add delay between requests to be respectful
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
 
     // Mark old jobs as inactive
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
     await prisma.job.updateMany({
       where: {
         scrapedAt: {
-          lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // 30 days old
+          lt: thirtyDaysAgo
         }
       },
       data: {
@@ -55,13 +59,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       jobsScraped: totalJobsScraped,
-      searchesProcessed: popularSearches.length
+      timestamp: new Date().toISOString()
     });
+
   } catch (error) {
     console.error('Cron job error:', error);
     return NextResponse.json(
       { error: 'Failed to update jobs' },
       { status: 500 }
     );
+  } finally {
+    // Clean up Prisma connections
+    await scraper.disconnect();
+    await prisma.$disconnect();
   }
 } 

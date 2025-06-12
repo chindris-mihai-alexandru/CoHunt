@@ -2,12 +2,12 @@
 
 ## 1. Get Your Database URL
 
-1. Go to your Supabase dashboard: https://supabase.com/dashboard/project/ibqvjblerlrbxxjvfkmz
+1. Go to your Supabase dashboard
 2. Click the **"Connect"** button at the top
 3. Choose **"Transaction"** mode (best for serverless)
 4. Copy the connection string - it looks like:
    ```
-   postgresql://postgres.ibqvjblerlrbxxjvfkmz:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres
+   postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres
    ```
 5. Replace `[YOUR-PASSWORD]` with your database password
 6. Add `?pgbouncer=true` at the end
@@ -23,20 +23,20 @@ Create a `.env.local` file in your project root with:
 
 ```env
 # Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://ibqvjblerlrbxxjvfkmz.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlicXZqYmxlcmxyYnh4anZma216Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3MjE5MjEsImV4cCI6MjA2NTI5NzkyMX0.6OfJ3eo3PVlgjQTFcUmoBVEnCTLbZVyc_8QkpFxwbpI
-SUPABASE_SERVICE_ROLE_KEY=<your_service_role_key>
+NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 
 # Database
-DATABASE_URL=<your_database_url_from_step_1>
+DATABASE_URL=<your-database-url-from-step-1>
 
 # Your existing keys
-OPENAI_API_KEY=<your_openai_key>
-FIRECRAWL_API_KEY=<your_firecrawl_key>
+OPENAI_API_KEY=<your-openai-key>
+FIRECRAWL_API_KEY=<your-firecrawl-key>
 
 # App Configuration
 NEXT_PUBLIC_FREE_SEARCHES_PER_DAY=3
-CRON_SECRET=<generate_random_string>
+CRON_SECRET=<generate-random-string>
 ```
 
 ## 4. Enable Email Authentication
