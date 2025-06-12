@@ -1,38 +1,117 @@
-# CoHunt
+# CoHunt - AI-Powered Job Matching Platform 🚀
 
-A job hunting platform built with Next.js.
+An intelligent job search platform that uses AI to match candidates with their perfect opportunities, featuring real-time job scraping, personalized match scores, and a freemium SaaS model.
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-15.3-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)
+![Supabase](https://img.shields.io/badge/Supabase-Auth-green?logo=supabase)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-412991?logo=openai)
 
-First, run the development server:
+## 🌟 Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### For Job Seekers
+- **🤖 AI-Powered Matching**: Upload your resume and get personalized match scores for every job
+- **🔍 Real-Time Job Search**: Live job data from multiple sources (Indeed, LinkedIn, etc.)
+- **📊 Smart Analytics**: Track applications, view market trends, and optimize your job search
+- **💼 Resume Analysis**: AI evaluates your resume against job requirements
+- **🎯 Location-Aware**: Find jobs in your area with accurate salary data (including ISK for Iceland)
+
+### Technical Highlights
+- **🔐 Authentication**: Secure user accounts with Supabase Auth
+- **💾 Real Database**: PostgreSQL with Prisma ORM for reliable data storage
+- **🚦 Rate Limiting**: Free tier (3 searches/day) vs Premium (unlimited)
+- **📱 Responsive Design**: Beautiful UI with Tailwind CSS
+- **⚡ Performance**: Next.js 15 with Turbopack for blazing-fast development
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, Prisma ORM
+- **Database**: PostgreSQL (Supabase)
+- **Authentication**: Supabase Auth
+- **AI/ML**: OpenAI GPT-4 for matching, Firecrawl for web scraping
+- **Deployment**: Vercel-ready
+
+## 🚀 Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/chindris-mihai-alexandru/CoHunt.git
+   cd cohunt-app
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   Fill in your API keys:
+   - Supabase credentials
+   - OpenAI API key
+   - Database URL
+
+4. **Run database migrations**
+   ```bash
+   npm run prisma:migrate
+   ```
+
+5. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open [http://localhost:3000](http://localhost:3000)**
+
+## 💡 Architecture
+
+```
+cohunt-app/
+├── src/
+│   ├── app/              # Next.js app router pages
+│   ├── components/       # React components
+│   ├── lib/             # Utilities and configurations
+│   │   ├── supabase/    # Supabase client setup
+│   │   ├── jobs/        # Job scraping logic
+│   │   └── prisma/      # Database client
+│   └── types/           # TypeScript definitions
+├── prisma/              # Database schema
+└── public/             # Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎯 Roadmap
 
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
+- [x] AI-powered job matching
+- [x] Resume upload and parsing
+- [x] User authentication
+- [x] Real job data integration
+- [x] Freemium monetization model
+- [ ] Email notifications for job alerts
+- [ ] Advanced analytics dashboard
+- [ ] Mobile app
+- [ ] API for third-party integrations
 
-## Branches
+## 🤝 Contributing
 
-- `main`: Production branch
-- `claude`: Development branch for Claude Code changes
-- `cursor`: Development branch for Cursor changes
+This project is currently under active development. Feel free to:
+- Report bugs
+- Suggest new features
+- Submit pull requests
 
-## Learn More
+## 📄 License
 
-To learn more about Next.js, take a look at the following resources:
+This project is open source and available under the [MIT License](LICENSE).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 👨‍💻 Developer
 
-## Deploy on Vercel
+**Mihai-Alexandru Chindris**
+- GitHub: [@chindris-mihai-alexandru](https://github.com/chindris-mihai-alexandru)
+- LinkedIn: [Your LinkedIn Profile]
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
+
+Built with ❤️ using Next.js, TypeScript, and AI
