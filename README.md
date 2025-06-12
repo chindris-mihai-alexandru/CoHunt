@@ -110,7 +110,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 **Mihai-Alexandru Chindris**
 - GitHub: [@chindris-mihai-alexandru](https://github.com/chindris-mihai-alexandru)
-- LinkedIn: [Your LinkedIn Profile]
+- LinkedIn: https://www.linkedin.com/in/mihai-chindris/
 
 ---
 
