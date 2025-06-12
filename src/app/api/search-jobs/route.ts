@@ -122,7 +122,8 @@ export async function POST(request: NextRequest) {
               temperature: 0.3,
             });
 
-            const score = parseInt(response.choices[0].message.content || '0');
+            let score = parseInt(response.choices[0].message.content || '0');
+            score = isNaN(score) ? 0 : score;
             return { ...job, matchScore: Math.min(100, Math.max(0, score)) };
           } catch (error) {
             console.error('Error calculating match score:', error);
