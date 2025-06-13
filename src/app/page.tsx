@@ -5,6 +5,7 @@ import { Job } from '@/types/job';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginModal from '@/components/auth/LoginModal';
 import SignupModal from '@/components/auth/SignupModal';
+import EmailVerificationBanner from '@/components/auth/EmailVerificationBanner';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
@@ -117,6 +118,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Email Verification Banner */}
+      <EmailVerificationBanner />
+      
       {/* Header */}
       <header className="border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

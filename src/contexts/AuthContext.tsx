@@ -14,6 +14,9 @@ interface AuthContextType {
   isPremium: boolean;
   searchesRemaining: number;
   refreshUserData: () => Promise<void>;
+  isEmailVerified: boolean;
+  unverifiedEmail: string | null;
+  clearUnverifiedEmail: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
   const [searchesRemaining, setSearchesRemaining] = useState(3);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -50,7 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('userId', userId)
           .gte('createdAt', today.toISOString());
 
-        const remaining = Math.max(0, 3 - (count || 0));
+        const dailyLimit = parseInt(process.env.NEXT_PUBLIC_FREE_SEARCHES_PER_DAY || '10');
+        const remaining = Math.max(0, dailyLimit - (count || 0));
         setSearchesRemaining(remaining);
       } else {
         setSearchesRemaining(999); // Unlimited for premium
@@ -65,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
+        setIsEmailVerified(session.user.email_confirmed_at !== null);
         fetchUserData(session.user.id);
       }
       setLoading(false);
@@ -76,10 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
+        setIsEmailVerified(session.user.email_confirmed_at !== null);
         fetchUserData(session.user.id);
       } else {
         setIsPremium(false);
-        setSearchesRemaining(3);
+        const dailyLimit = parseInt(process.env.NEXT_PUBLIC_FREE_SEARCHES_PER_DAY || '10');
+        setSearchesRemaining(dailyLimit);
+        setIsEmailVerified(false);
       }
     });
 
@@ -87,12 +97,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchUserData, supabase]);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) throw error;
+
+    // Check if email is verified
+    if (data.user && !data.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      setUnverifiedEmail(email); // Store email for banner
+      throw new Error('Please verify your email before signing in. Check your inbox for the verification link.');
+    }
+
+    // Clear unverified email on successful login
+    setUnverifiedEmail(null);
   };
 
   const signUp = async (email: string, password: string, name?: string) => {
@@ -130,6 +150,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const clearUnverifiedEmail = () => {
+    setUnverifiedEmail(null);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -141,6 +165,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isPremium,
         searchesRemaining,
         refreshUserData,
+        isEmailVerified,
+        unverifiedEmail,
+        clearUnverifiedEmail,
       }}
     >
       {children}

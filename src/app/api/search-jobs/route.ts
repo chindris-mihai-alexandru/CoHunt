@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
 import { JobScraper } from '@/lib/jobs/scraper';
+import { jobCacheService } from '@/lib/cache/job-cache';
 
 const prisma = new PrismaClient();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -57,41 +58,68 @@ export async function POST(request: NextRequest) {
         }
       });
     }
-    // First, check if we have recent jobs in database
-    const recentJobs = await prisma.job.findMany({
-      where: {
-        OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } }
-        ],
-        location: location ? { contains: location, mode: 'insensitive' } : undefined,
-        isActive: true,
-        scrapedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24 hours
-      },
-      take: 20,
-      orderBy: { scrapedAt: 'desc' }
-    });
+    // First, check cache for recent results
+    let jobs = jobCacheService.get(query, location);
 
-    let jobs = recentJobs;
-
-    // If we don't have enough recent jobs, scrape new ones
-    if (jobs.length < 5) {
-      const scraper = new JobScraper();
-      await scraper.scrapeAndSaveJobs(query, location || '');
+    if (!jobs) {
+      console.log('Cache miss, checking database...');
       
-      // Fetch again after scraping
-      jobs = await prisma.job.findMany({
+      // Check if we have recent jobs in database
+      const recentJobs = await prisma.job.findMany({
         where: {
           OR: [
             { title: { contains: query, mode: 'insensitive' } },
             { description: { contains: query, mode: 'insensitive' } }
           ],
           location: location ? { contains: location, mode: 'insensitive' } : undefined,
-          isActive: true
+          isActive: true,
+          scrapedAt: { gte: new Date(Date.now() - 2 * 60 * 60 * 1000) } // Last 2 hours
         },
         take: 20,
         orderBy: { scrapedAt: 'desc' }
       });
+
+      jobs = recentJobs;
+
+      // If we don't have enough recent jobs, scrape new ones
+      if (jobs.length < 5) {
+        console.log('Insufficient recent jobs, starting fresh scrape...');
+        
+        try {
+          const scraper = new JobScraper();
+          const scrapedCount = await scraper.scrapeAndSaveJobs(query, location || '');
+          console.log(`Scraped ${scrapedCount} new jobs`);
+          
+          // Fetch again after scraping
+          jobs = await prisma.job.findMany({
+            where: {
+              OR: [
+                { title: { contains: query, mode: 'insensitive' } },
+                { description: { contains: query, mode: 'insensitive' } }
+              ],
+              location: location ? { contains: location, mode: 'insensitive' } : undefined,
+              isActive: true
+            },
+            take: 20,
+            orderBy: { scrapedAt: 'desc' }
+          });
+          
+        } catch (scrapeError) {
+          console.error('Job scraping failed:', scrapeError);
+          // Continue with existing jobs if scraping fails
+          if (jobs.length === 0) {
+            return NextResponse.json(
+              { error: 'Unable to find jobs at the moment. Please try again later.' },
+              { status: 503 }
+            );
+          }
+        }
+      }
+
+      // Cache the results for future requests
+      if (jobs.length > 0) {
+        jobCacheService.set(query, jobs, location);
+      }
     }
 
     // Calculate match scores if user has resume
@@ -103,9 +131,12 @@ export async function POST(request: NextRequest) {
       });
 
       if (userData?.resumeText) {
-        // Use OpenAI to calculate match scores
-        const matchPromises = jobs.map(async (job) => {
+        // Use OpenAI to calculate match scores with rate limiting
+        const matchPromises = jobs.slice(0, 10).map(async (job, index) => {
           try {
+            // Add delay between requests to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, index * 100));
+            
             const response = await openai.chat.completions.create({
               model: "gpt-3.5-turbo",
               messages: [
@@ -120,21 +151,34 @@ export async function POST(request: NextRequest) {
               ],
               max_tokens: 10,
               temperature: 0.3,
+              timeout: 10000, // 10 second timeout
             });
 
             let score = parseInt(response.choices[0].message.content || '0');
-            score = isNaN(score) ? 0 : score;
+            score = isNaN(score) ? 50 : score; // Default to 50 if parsing fails
             return { ...job, matchScore: Math.min(100, Math.max(0, score)) };
           } catch (error) {
-            console.error('Error calculating match score:', error);
-            return { ...job, matchScore: undefined };
+            console.error(`Error calculating match score for job ${job.id}:`, error);
+            // Return job with a default score instead of undefined
+            return { ...job, matchScore: 50 };
           }
         });
 
-        jobsWithScores = await Promise.all(matchPromises);
+        // Add unprocessed jobs (if more than 10) without scores
+        const remainingJobs = jobs.slice(10).map(job => ({ ...job, matchScore: undefined }));
+
+        const processedJobs = await Promise.all(matchPromises);
+        jobsWithScores = [...processedJobs, ...remainingJobs];
         
-        // Sort by match score
-        jobsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+        // Sort by match score (jobs with scores first)
+        jobsWithScores.sort((a, b) => {
+          if (a.matchScore !== undefined && b.matchScore !== undefined) {
+            return b.matchScore - a.matchScore;
+          }
+          if (a.matchScore !== undefined) return -1;
+          if (b.matchScore !== undefined) return 1;
+          return 0;
+        });
       }
     }
 
@@ -154,9 +198,37 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Job search error:', error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('Firecrawl')) {
+        return NextResponse.json(
+          { error: 'Job search service temporarily unavailable. Please try again in a few minutes.' },
+          { status: 503 }
+        );
+      }
+      
+      if (error.message.includes('rate limit') || error.message.includes('429')) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please wait a moment before searching again.' },
+          { status: 429 }
+        );
+      }
+      
+      if (error.message.includes('timeout')) {
+        return NextResponse.json(
+          { error: 'Search timeout. Please try a more specific query.' },
+          { status: 408 }
+        );
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to search jobs' },
+      { error: 'An unexpected error occurred while searching for jobs. Please try again.' },
       { status: 500 }
     );
+  } finally {
+    // Ensure database connection is closed
+    await prisma.$disconnect();
   }
 }

@@ -25,7 +25,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }: Signup
 
     try {
       await signUp(email, password, name);
-      toast.success('Account created! Please check your email to verify.');
+      toast.success('Account created! Please check your email to verify your account before signing in.');
       onClose();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create account');

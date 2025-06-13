@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { PrismaClient } from '@prisma/client';
+import { firecrawlJobService } from './firecrawl-service';
 
 const prisma = new PrismaClient();
 
@@ -103,11 +104,49 @@ export class JobScraper {
   }
 
   async scrapeAndSaveJobs(query: string, location: string = ''): Promise<number> {
-    const indeedJobs = await this.scrapeIndeed(query, location);
-    const linkedInJobs = await this.scrapeLinkedIn();
+    let allJobs: ScrapedJob[] = [];
     
-    const allJobs = [...indeedJobs, ...linkedInJobs];
-    await this.saveJobsToDatabase(allJobs);
+    try {
+      // First try Firecrawl for live job search
+      console.log('Attempting Firecrawl job search...');
+      const firecrawlJobs = await firecrawlJobService.searchJobs({
+        query,
+        location,
+        maxResults: 15
+      });
+      
+      // Convert Firecrawl jobs to ScrapedJob format
+      const convertedJobs: ScrapedJob[] = firecrawlJobs.map(job => ({
+        title: job.title,
+        company: job.company,
+        location: job.location || location || 'Remote',
+        description: job.description,
+        url: job.url || '',
+        applyUrl: job.applyUrl,
+        salary: job.salaryRange,
+        type: 'Full-time', // Default type
+        postedDate: job.postedDate ? new Date(job.postedDate) : new Date(),
+        source: 'firecrawl'
+      }));
+      
+      allJobs = convertedJobs;
+      console.log(`Firecrawl found ${allJobs.length} jobs`);
+      
+    } catch (error) {
+      console.error('Firecrawl failed, falling back to traditional scraping:', error);
+      
+      // Fallback to traditional scraping
+      const indeedJobs = await this.scrapeIndeed(query, location);
+      const linkedInJobs = await this.scrapeLinkedIn();
+      
+      allJobs = [...indeedJobs, ...linkedInJobs];
+      console.log(`Fallback scraping found ${allJobs.length} jobs`);
+    }
+    
+    // Save jobs to database
+    if (allJobs.length > 0) {
+      await this.saveJobsToDatabase(allJobs);
+    }
     
     return allJobs.length;
   }

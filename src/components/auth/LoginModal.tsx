@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { sendPasswordResetEmail } from '@/lib/supabase/auth-helpers';
 import toast from 'react-hot-toast';
 
 interface LoginModalProps {
@@ -14,6 +15,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const { signIn } = useAuth();
 
   if (!isOpen) return null;
@@ -30,6 +32,23 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
       toast.error(error instanceof Error ? error.message : 'Failed to sign in');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      await sendPasswordResetEmail(email);
+      toast.success('Password reset email sent! Check your inbox.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to send reset email');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -53,9 +72,19 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Password
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Password
+              </label>
+              <button
+                type="button"
+                onClick={handlePasswordReset}
+                disabled={resetLoading}
+                className="text-sm text-blue-600 hover:underline disabled:opacity-50"
+              >
+                {resetLoading ? 'Sending...' : 'Forgot password?'}
+              </button>
+            </div>
             <input
               type="password"
               value={password}
