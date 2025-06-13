@@ -27,7 +27,7 @@ class JobCacheService {
       return null;
     }
 
-    console.log(`Cache hit for query: ${query}`);
+    console.log(`Cache hit for query: ${query}, location: ${location || 'any'}`);
     return cached.jobs;
   }
 
@@ -40,7 +40,7 @@ class JobCacheService {
       location
     });
 
-    console.log(`Cached ${jobs.length} jobs for query: ${query}`);
+    console.log(`Cached ${jobs.length} jobs for query: ${query}, location: ${location || 'any'}`);
     
     // Clean up old cache entries (keep max 50 entries)
     if (this.cache.size > 50) {

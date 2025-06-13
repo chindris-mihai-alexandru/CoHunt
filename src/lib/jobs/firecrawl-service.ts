@@ -43,14 +43,16 @@ class FirecrawlJobService {
     const { query, location, jobType, maxResults = 20 } = options;
 
     try {
-      // Build search query
-      let searchQuery = query;
+      // Build search query - be more specific to get better results
+      let searchQuery = `${query} jobs`;
       if (jobType) {
         searchQuery += ` ${jobType}`;
       }
       if (location) {
         searchQuery += ` in ${location}`;
       }
+      // Add site filters to get better job results
+      searchQuery += ' site:indeed.com OR site:linkedin.com OR site:glassdoor.com OR site:wellfound.com';
 
       console.log(`Starting Firecrawl job search for: "${searchQuery}"`);
 
@@ -130,31 +132,31 @@ class FirecrawlJobService {
   private isJobListingUrl(url: string): boolean {
     if (!url) return false;
 
-    // Patterns that indicate it's NOT a job listing
+    // Be more permissive - only exclude obvious non-job pages
     const excludePatterns = [
-      /\/search\?/i,
-      /\/jobs\?/i,
-      /q=/i,
-      /salary/i,
       /glassdoor\.com\/Salaries/i,
-      /indeed\.com\/career/i,
+      /indeed\.com\/career-advice/i,
+      /indeed\.com\/hire/i,
+      /\/privacy/i,
+      /\/terms/i,
+      /\/about/i,
+      /\/contact/i,
     ];
 
     for (const pattern of excludePatterns) {
       if (pattern.test(url)) return false;
     }
 
-    // Patterns that indicate it IS a job listing
+    // Accept most job-related URLs
     const includePatterns = [
-      /indeed\.com\/viewjob/i,
-      /indeed\.com\/job\//i,
-      /workatastartup\.com\/jobs\//i,
-      /wellfound\.com\/.*\/jobs\//i,
-      /weworkremotely\.com\/remote-jobs\//i,
-      /remoteok\.io\/remote-jobs\//i,
-      /\/careers?\//i,
-      /\/job[s]?\//i,
-      /\/position[s]?\//i,
+      /job/i,
+      /career/i,
+      /position/i,
+      /hiring/i,
+      /work/i,
+      /employment/i,
+      /vacancy/i,
+      /opportunity/i,
     ];
 
     return includePatterns.some(pattern => pattern.test(url));
@@ -164,28 +166,51 @@ class FirecrawlJobService {
     try {
       const content = result.markdown || result.content || '';
       const url = result.url || '';
+      let title = result.title || '';
 
-      // Extract company from URL or content
+      // Skip if this is a job listing page, not a specific job
+      if (title.includes('Jobs, Employment') || title.includes('job openings') || title.includes('careers')) {
+        // Try to extract individual job from content if it's a listing page
+        const jobMatch = content.match(/##?\s*\[?([^\\[\]]+?)\]?\s*(?:at|@|-)\s*([^\\n]+)/);
+        if (!jobMatch) return null;
+        title = jobMatch[1].trim();
+      }
+
+      // Extract company from various patterns
       let company = 'Unknown Company';
       if (url.includes('indeed.com')) {
-        company = this.extractFromPattern(content, /Company:\s*([^\n]+)/i) || company;
-      } else if (url.includes('workatastartup.com')) {
-        const urlMatch = url.match(/workatastartup\.com\/companies\/([^\/]+)/);
-        if (urlMatch) company = urlMatch[1].replace(/-/g, ' ');
+        company = this.extractFromPattern(content, /Company:\s*([^\n]+)/i) || 
+                 this.extractFromPattern(content, /^([^\\n]+)\s*\d+\.\d+/m) || // Rating pattern
+                 company;
+      } else if (url.includes('linkedin.com')) {
+        company = this.extractFromPattern(content, /About the company\s*([^\n]+)/i) || company;
+      } else if (url.includes('glassdoor.com')) {
+        company = this.extractFromPattern(content, /Company\s*-\s*([^\n]+)/i) || company;
       }
+
+      // Better location extraction
+      const location = this.extractFromPattern(content, /Location:\s*([^\n]+)/i) || 
+                      this.extractFromPattern(content, /📍\s*([^\n]+)/i) ||
+                      this.extractFromPattern(content, /\b(?:Remote|Hybrid|On-site)\s+(?:in\s+)?([^\n]+)/i) ||
+                      'Not specified';
 
       // Extract job details
       const job: JobData = {
-        title: result.title || this.extractFromPattern(content, /Job Title:\s*([^\n]+)/i) || 'Unknown Position',
+        title: title.replace(/\s*\|.*$/, '').trim(), // Remove trailing info
         company: company,
-        location: this.extractFromPattern(content, /Location:\s*([^\n]+)/i) || 'Not specified',
+        location: location,
         description: this.extractDescription(content),
         url: url,
-        salaryRange: this.extractFromPattern(content, /Salary:\s*([^\n]+)/i),
+        salaryRange: this.extractSalary(content),
         postedDate: this.extractFromPattern(content, /Posted:\s*([^\n]+)/i) || 'Recently',
         requirements: this.extractRequirements(content),
         applyUrl: this.extractApplyUrl(content, url),
       };
+
+      // Validate the job data
+      if (job.title === 'Unknown Position' || job.title.length < 5) {
+        return null;
+      }
 
       return job;
     } catch (error) {
@@ -197,6 +222,25 @@ class FirecrawlJobService {
   private extractFromPattern(content: string, pattern: RegExp): string | undefined {
     const match = content.match(pattern);
     return match ? match[1].trim() : undefined;
+  }
+
+  private extractSalary(content: string): string | undefined {
+    // Common salary patterns
+    const patterns = [
+      /\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*(?:year|hour|month))?/i,
+      /€[\d,]+(?:\s*-\s*€[\d,]+)?(?:\s*(?:per|\/)\s*(?:year|hour|month))?/i,
+      /£[\d,]+(?:\s*-\s*£[\d,]+)?(?:\s*(?:per|\/)\s*(?:year|hour|month))?/i,
+      /Salary:\s*([^\n]+)/i,
+      /Compensation:\s*([^\n]+)/i,
+    ];
+
+    for (const pattern of patterns) {
+      const match = content.match(pattern);
+      if (match) {
+        return match[0].trim();
+      }
+    }
+    return undefined;
   }
 
   private extractDescription(content: string): string {

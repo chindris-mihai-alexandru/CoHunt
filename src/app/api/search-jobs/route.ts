@@ -81,14 +81,9 @@ export async function POST(request: NextRequest) {
     if (!jobs) {
       console.log('Cache miss, checking database...');
       
-      // Check if we have recent jobs in database
+      // Check if we have recent jobs in database - be more flexible with search
       const recentJobs = await prisma.job.findMany({
         where: {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } }
-          ],
-          location: location ? { contains: location, mode: 'insensitive' } : undefined,
           isActive: true,
           scrapedAt: { gte: new Date(Date.now() - 2 * 60 * 60 * 1000) } // Last 2 hours
         },
@@ -97,6 +92,7 @@ export async function POST(request: NextRequest) {
       });
 
       jobs = recentJobs;
+      console.log(`Found ${jobs.length} recent jobs in database`);
 
       // If we don't have enough recent jobs, scrape new ones
       if (jobs.length < 5) {
@@ -107,19 +103,16 @@ export async function POST(request: NextRequest) {
           const scrapedCount = await scraper.scrapeAndSaveJobs(query, location || '');
           console.log(`Scraped ${scrapedCount} new jobs`);
           
-          // Fetch again after scraping
+          // Fetch again after scraping - return all recent jobs
           jobs = await prisma.job.findMany({
             where: {
-              OR: [
-                { title: { contains: query, mode: 'insensitive' } },
-                { description: { contains: query, mode: 'insensitive' } }
-              ],
-              location: location ? { contains: location, mode: 'insensitive' } : undefined,
               isActive: true
             },
             take: 20,
             orderBy: { scrapedAt: 'desc' }
           });
+          
+          console.log(`After scraping, found ${jobs.length} jobs in database`);
           
         } catch (scrapeError) {
           console.error('Job scraping failed:', scrapeError);
@@ -216,6 +209,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log(`Returning ${jobsWithScores.length} jobs to client`);
     return NextResponse.json({ jobs: jobsWithScores });
 
   } catch (error) {

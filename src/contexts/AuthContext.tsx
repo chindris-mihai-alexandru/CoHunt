@@ -33,38 +33,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserData = useCallback(async (userId: string) => {
     try {
-      // Fetch user premium status
-      const { data: userData } = await supabase
-        .from('users')
-        .select('isPremium')
-        .eq('id', userId)
-        .single();
+      const response = await fetch('/api/user-data', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (userData) {
-        setIsPremium(userData.isPremium);
-      }
-
-      // Fetch today's searches count
-      if (!userData?.isPremium) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const { count } = await supabase
-          .from('searches')
-          .select('*', { count: 'exact', head: true })
-          .eq('userId', userId)
-          .gte('createdAt', today.toISOString());
-
-        const dailyLimit = parseInt(process.env.NEXT_PUBLIC_FREE_SEARCHES_PER_DAY || '10');
-        const remaining = Math.max(0, dailyLimit - (count || 0));
-        setSearchesRemaining(remaining);
-      } else {
-        setSearchesRemaining(999); // Unlimited for premium
+      if (response.ok) {
+        const data = await response.json();
+        setIsPremium(data.isPremium);
+        setSearchesRemaining(data.searchesRemaining);
+        console.log(`Search count debug: searchesRemaining=${data.searchesRemaining}, searchCount=${data.searchCount}, isPremium=${data.isPremium}`);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
+      // Fallback to default values
+      const dailyLimit = parseInt(process.env.NEXT_PUBLIC_FREE_SEARCHES_PER_DAY || '10');
+      setSearchesRemaining(dailyLimit);
     }
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     // Check active session
