@@ -48,15 +48,32 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Record the search
-      await prisma.search.create({
-        data: {
-          userId: user.id,
-          query,
-          location,
-          jobType
-        }
-      });
+      // Record the search (only if user exists in database)
+      try {
+        // First ensure user exists in our database
+        await prisma.user.upsert({
+          where: { id: user.id },
+          update: {}, // Don't update anything if exists
+          create: {
+            id: user.id,
+            email: user.email || '',
+            name: user.user_metadata?.name || '',
+          }
+        });
+
+        // Now record the search
+        await prisma.search.create({
+          data: {
+            userId: user.id,
+            query,
+            location,
+            jobType
+          }
+        });
+      } catch (dbError) {
+        console.error('Error recording search:', dbError);
+        // Continue with search even if recording fails
+      }
     }
     // First, check cache for recent results
     let jobs = jobCacheService.get(query, location);
@@ -184,14 +201,19 @@ export async function POST(request: NextRequest) {
 
     // Record search history
     if (user) {
-      await prisma.searchHistory.create({
-        data: {
-          userId: user.id,
-          query,
-          location,
-          resultsCount: jobsWithScores.length
-        }
-      });
+      try {
+        await prisma.searchHistory.create({
+          data: {
+            userId: user.id,
+            query,
+            location,
+            resultsCount: jobsWithScores.length
+          }
+        });
+      } catch (historyError) {
+        console.error('Error recording search history:', historyError);
+        // Continue anyway
+      }
     }
 
     return NextResponse.json({ jobs: jobsWithScores });

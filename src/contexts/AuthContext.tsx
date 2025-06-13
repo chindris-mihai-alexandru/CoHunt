@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
-  const [searchesRemaining, setSearchesRemaining] = useState(3);
+  const [searchesRemaining, setSearchesRemaining] = useState(10);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const router = useRouter();
@@ -130,11 +130,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Create user record in database
     if (data.user) {
-      await supabase.from('users').insert({
+      const { error: insertError } = await supabase.from('users').insert({
         id: data.user.id,
         email: data.user.email,
         name,
       });
+      
+      if (insertError) {
+        console.error('Error creating user record:', insertError);
+        // Don't throw error here as user is already created in auth
+      }
     }
   };
 
