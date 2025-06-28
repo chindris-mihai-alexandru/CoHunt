@@ -65,6 +65,25 @@
 - [ ] Add API rate limiting per user
 - [ ] Implement job alert notifications
 
+## Cloud Infrastructure Migration 🌩️
+
+**Status**: Planning Phase  
+**Timeline**: To begin after core features are stable
+
+See [Cloud Implementation Roadmap](docs/CLOUD_IMPLEMENTATION_ROADMAP.md) for detailed plans including:
+- AWS Activate application strategy ($1K-$100K credits)
+- Serverless architecture with AWS Lambda
+- CDN implementation for global performance
+- Microservices migration path
+- Cost optimization strategies
+
+### Key Milestones
+- [ ] Apply for AWS Activate Founders tier
+- [ ] Migrate to serverless functions (FaaS)
+- [ ] Implement CloudFront CDN
+- [ ] Set up monitoring and QoS logging
+- [ ] Design horizontal scaling architecture
+
 ## Resource Requirements
 
 ### Monthly Costs Estimate
@@ -81,4 +100,4 @@
 
 ---
 
-*Last updated: December 2024*
+*Last updated: June 2025*
