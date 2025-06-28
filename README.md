@@ -83,17 +83,70 @@ cohunt-app/
 └── public/             # Static assets
 ```
 
-## 🎯 Roadmap
+## 🎯 Development Roadmap
 
-- [x] AI-powered job matching
-- [x] Resume upload and parsing
-- [x] User authentication
-- [x] Real job data integration
-- [x] Freemium monetization model
-- [ ] Email notifications for job alerts
-- [ ] Advanced analytics dashboard
-- [ ] Mobile app
-- [ ] API for third-party integrations
+### ✅ Completed Features
+- AI-powered job matching with OpenAI GPT-4
+- Resume upload and parsing
+- User authentication with Supabase
+- Real job data integration with Firecrawl
+- Freemium monetization model (3 searches/day free)
+- PostgreSQL database with Prisma ORM
+- Responsive Next.js 15 interface
+
+### 🚧 In Progress
+
+#### Email Confirmation System 📧
+- Set up Resend for transactional emails
+- Implement email templates (welcome, confirmation, password reset)
+- Configure Supabase Auth to use Resend SMTP
+- Add email verification flow to signup process
+
+#### Live Job Search Integration 🔍
+- Implement real Firecrawl API integration
+- Add error handling and rate limiting
+- Cache job results to minimize API calls
+- Add fallback to database for recent searches
+
+### 🔮 Upcoming Features
+
+#### Platform Monetization ☕
+- Buy Me A Coffee widget integration
+- Dedicated "Support Us" page
+- Donation progress bar showing API costs coverage
+- Transparency dashboard with real-time API usage stats
+
+#### Q2-Q3 2025
+- **Mobile app** (React Native)
+- **Browser extension** for quick job saves
+- **AI-powered cover letter generation**
+- **Interview preparation assistant**
+- **Company reviews integration**
+- **Salary insights and negotiation tips**
+
+#### Technical Improvements
+- Comprehensive test suite
+- Proper logging and monitoring
+- CI/CD pipeline
+- API rate limiting per user
+- Job alert notifications
+
+### 🌩️ Cloud Infrastructure Migration
+
+**Status**: Planning Phase | **Timeline**: After core features are stable
+
+See [Cloud Implementation Roadmap](docs/CLOUD_IMPLEMENTATION_ROADMAP.md) for detailed plans:
+- AWS Activate application strategy ($1K-$100K credits)
+- Serverless architecture with AWS Lambda
+- CDN implementation for global performance
+- Microservices migration path
+
+### 💰 Monthly Operating Costs
+- **Firecrawl API**: $50-200 (usage-based)
+- **Supabase**: $25 (Pro tier)
+- **Resend Email**: $20 (10k emails/month)
+- **Vercel Hosting**: $20 (Pro tier)
+- **Total**: ~$115-265/month
 
 ## 🤝 Contributing
 
