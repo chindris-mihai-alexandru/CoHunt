@@ -23,14 +23,22 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
       
-      - name: Sync claude branch
+      - name: Auto-sync all branches to main
         run: |
-          git checkout claude || git checkout -b claude
-          git reset --hard origin/main
-          git push origin claude --force-with-lease
-      
-      - name: Sync cursor branch
-        run: |
-          git checkout cursor || git checkout -b cursor
-          git reset --hard origin/main
-          git push origin cursor --force-with-lease
+          # Get all remote branches except main
+          BRANCHES=$(git branch -r | grep -v 'origin/main' | grep -v 'origin/HEAD' | sed 's/origin\///' | tr -d ' ')
+          
+          echo "Found branches to sync: $BRANCHES"
+          
+          for branch in $BRANCHES; do
+            echo "Syncing branch: $branch"
+            
+            # Checkout or create the branch
+            git checkout "$branch" 2>/dev/null || git checkout -b "$branch" "origin/$branch"
+            
+            # Reset to main and push
+            git reset --hard origin/main
+            git push origin "$branch" --force-with-lease
+            
+            echo "✅ Synced $branch with main"
+          done
