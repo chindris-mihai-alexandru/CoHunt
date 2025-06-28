@@ -148,13 +148,6 @@ See [Cloud Implementation Roadmap](docs/CLOUD_IMPLEMENTATION_ROADMAP.md) for det
 - **Vercel Hosting**: $20 (Pro tier)
 - **Total**: ~$115-265/month
 
-## 🤝 Contributing
-
-This project is currently under active development. Feel free to:
-- Report bugs
-- Suggest new features
-- Submit pull requests
-
 ## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
