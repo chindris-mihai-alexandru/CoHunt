@@ -48,15 +48,32 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Record the search
-      await prisma.search.create({
-        data: {
-          userId: user.id,
-          query,
-          location,
-          jobType
-        }
-      });
+      // Record the search (only if user exists in database)
+      try {
+        // First ensure user exists in our database
+        await prisma.user.upsert({
+          where: { id: user.id },
+          update: {}, // Don't update anything if exists
+          create: {
+            id: user.id,
+            email: user.email || '',
+            name: user.user_metadata?.name || '',
+          }
+        });
+
+        // Now record the search
+        await prisma.search.create({
+          data: {
+            userId: user.id,
+            query,
+            location,
+            jobType
+          }
+        });
+      } catch (dbError) {
+        console.error('Error recording search:', dbError);
+        // Continue with search even if recording fails
+      }
     }
     // First, check cache for recent results
     let jobs = jobCacheService.get(query, location);
@@ -64,14 +81,9 @@ export async function POST(request: NextRequest) {
     if (!jobs) {
       console.log('Cache miss, checking database...');
       
-      // Check if we have recent jobs in database
+      // Check if we have recent jobs in database - be more flexible with search
       const recentJobs = await prisma.job.findMany({
         where: {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } }
-          ],
-          location: location ? { contains: location, mode: 'insensitive' } : undefined,
           isActive: true,
           scrapedAt: { gte: new Date(Date.now() - 2 * 60 * 60 * 1000) } // Last 2 hours
         },
@@ -80,6 +92,7 @@ export async function POST(request: NextRequest) {
       });
 
       jobs = recentJobs;
+      console.log(`Found ${jobs.length} recent jobs in database`);
 
       // If we don't have enough recent jobs, scrape new ones
       if (jobs.length < 5) {
@@ -90,19 +103,16 @@ export async function POST(request: NextRequest) {
           const scrapedCount = await scraper.scrapeAndSaveJobs(query, location || '');
           console.log(`Scraped ${scrapedCount} new jobs`);
           
-          // Fetch again after scraping
+          // Fetch again after scraping - return all recent jobs
           jobs = await prisma.job.findMany({
             where: {
-              OR: [
-                { title: { contains: query, mode: 'insensitive' } },
-                { description: { contains: query, mode: 'insensitive' } }
-              ],
-              location: location ? { contains: location, mode: 'insensitive' } : undefined,
               isActive: true
             },
             take: 20,
             orderBy: { scrapedAt: 'desc' }
           });
+          
+          console.log(`After scraping, found ${jobs.length} jobs in database`);
           
         } catch (scrapeError) {
           console.error('Job scraping failed:', scrapeError);
@@ -184,16 +194,22 @@ export async function POST(request: NextRequest) {
 
     // Record search history
     if (user) {
-      await prisma.searchHistory.create({
-        data: {
-          userId: user.id,
-          query,
-          location,
-          resultsCount: jobsWithScores.length
-        }
-      });
+      try {
+        await prisma.searchHistory.create({
+          data: {
+            userId: user.id,
+            query,
+            location,
+            resultsCount: jobsWithScores.length
+          }
+        });
+      } catch (historyError) {
+        console.error('Error recording search history:', historyError);
+        // Continue anyway
+      }
     }
 
+    console.log(`Returning ${jobsWithScores.length} jobs to client`);
     return NextResponse.json({ jobs: jobsWithScores });
 
   } catch (error) {

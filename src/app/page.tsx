@@ -96,6 +96,8 @@ export default function Home() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('API response:', data);
+        console.log('Number of jobs returned:', data.jobs?.length || 0);
         setJobs(data.jobs);
         setHasSearched(true);
         

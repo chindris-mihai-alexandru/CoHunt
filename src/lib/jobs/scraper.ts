@@ -31,12 +31,16 @@ export class JobScraper {
       await this.delay(1000);
       
       const url = `https://www.indeed.com/jobs?q=${encodeURIComponent(query)}&l=${encodeURIComponent(location)}`;
+      console.log(`Scraping Indeed URL: ${url}`);
+      
       const response = await axios.get(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         },
         timeout: 10000 // 10 second timeout
       });
+
+      console.log(`Indeed response status: ${response.status}, content length: ${response.data.length}`);
 
       const $ = cheerio.load(response.data);
       
@@ -76,27 +80,39 @@ export class JobScraper {
   async saveJobsToDatabase(jobs: ScrapedJob[]): Promise<void> {
     for (const job of jobs) {
       try {
-        await prisma.job.upsert({
+        // Check if job already exists
+        const existingJob = await prisma.job.findFirst({
           where: {
             url: job.url,
-          },
-          update: {
-            isActive: true,
-            scrapedAt: new Date(),
-          },
-          create: {
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            description: job.description,
-            url: job.url,
-            applyUrl: job.applyUrl,
-            salary: job.salary,
-            type: job.type,
-            postedDate: job.postedDate,
-            source: job.source,
-          },
+          }
         });
+
+        if (existingJob) {
+          // Update existing job
+          await prisma.job.update({
+            where: { id: existingJob.id },
+            data: {
+              isActive: true,
+              scrapedAt: new Date(),
+            }
+          });
+        } else {
+          // Create new job
+          await prisma.job.create({
+            data: {
+              title: job.title,
+              company: job.company,
+              location: job.location,
+              description: job.description,
+              url: job.url,
+              applyUrl: job.applyUrl,
+              salary: job.salary,
+              type: job.type,
+              postedDate: job.postedDate && !isNaN(job.postedDate.getTime()) ? job.postedDate : new Date(),
+              source: job.source,
+            },
+          });
+        }
       } catch (error) {
         console.error('Error saving job:', error);
       }
@@ -106,17 +122,21 @@ export class JobScraper {
   async scrapeAndSaveJobs(query: string, location: string = ''): Promise<number> {
     let allJobs: ScrapedJob[] = [];
     
+    // Try both Firecrawl and traditional scraping for better results
+    let firecrawlJobs: ScrapedJob[] = [];
+    let traditionalJobs: ScrapedJob[] = [];
+
     try {
       // First try Firecrawl for live job search
       console.log('Attempting Firecrawl job search...');
-      const firecrawlJobs = await firecrawlJobService.searchJobs({
+      const firecrawlResults = await firecrawlJobService.searchJobs({
         query,
         location,
-        maxResults: 15
+        maxResults: 10
       });
       
       // Convert Firecrawl jobs to ScrapedJob format
-      const convertedJobs: ScrapedJob[] = firecrawlJobs.map(job => ({
+      firecrawlJobs = firecrawlResults.map(job => ({
         title: job.title,
         company: job.company,
         location: job.location || location || 'Remote',
@@ -125,22 +145,36 @@ export class JobScraper {
         applyUrl: job.applyUrl,
         salary: job.salaryRange,
         type: 'Full-time', // Default type
-        postedDate: job.postedDate ? new Date(job.postedDate) : new Date(),
+        postedDate: new Date(),
         source: 'firecrawl'
       }));
       
-      allJobs = convertedJobs;
-      console.log(`Firecrawl found ${allJobs.length} jobs`);
+      console.log(`Firecrawl found ${firecrawlJobs.length} jobs`);
       
     } catch (error) {
-      console.error('Firecrawl failed, falling back to traditional scraping:', error);
-      
-      // Fallback to traditional scraping
+      console.error('Firecrawl failed:', error);
+    }
+
+    // Always try traditional scraping as backup/supplement
+    try {
+      console.log('Attempting traditional scraping...');
       const indeedJobs = await this.scrapeIndeed(query, location);
       const linkedInJobs = await this.scrapeLinkedIn();
       
-      allJobs = [...indeedJobs, ...linkedInJobs];
-      console.log(`Fallback scraping found ${allJobs.length} jobs`);
+      traditionalJobs = [...indeedJobs, ...linkedInJobs];
+      console.log(`Traditional scraping found ${traditionalJobs.length} jobs`);
+      
+    } catch (error) {
+      console.error('Traditional scraping failed:', error);
+    }
+
+    // Combine both sources, prioritizing Firecrawl
+    allJobs = [...firecrawlJobs, ...traditionalJobs];
+    console.log(`Total jobs found: ${allJobs.length} (${firecrawlJobs.length} from Firecrawl, ${traditionalJobs.length} from traditional)`);
+
+    // If no jobs found, provide helpful message
+    if (allJobs.length === 0) {
+      console.log('No jobs found from any source');
     }
     
     // Save jobs to database

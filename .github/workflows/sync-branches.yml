@@ -1,5 +1,8 @@
 name: Sync Branches
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
