@@ -106,29 +106,6 @@ This project is currently under active development. Feel free to:
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## 💖 Support the Project
-
-<a href="https://www.buymeacoffee.com/your-username" target="_blank">
-  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
-</a>
-
-### Why Donate?
-
-CoHunt relies on several paid APIs to deliver real-time job matching:
-- **Firecrawl API**: Powers our job scraping engine to find the latest opportunities
-- **OpenAI API**: Provides AI-powered resume matching and analysis
-- **Email Services**: Ensures reliable delivery of job alerts and notifications
-
-Your donations help us:
-- 🔍 Keep job data fresh and accurate with continuous API calls
-- 🚀 Maintain and improve the platform
-- 💡 Develop new features requested by the community
-- 🌍 Keep the service free for job seekers who need it most
-
-**Monthly API Costs**: ~$150-300 depending on usage
-
-Every coffee helps us serve more job seekers! ☕
-
 ## 👨‍💻 Developer
 
 **Mihai-Alexandru Chindris**

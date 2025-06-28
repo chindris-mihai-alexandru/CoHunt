@@ -30,15 +30,6 @@
 - [ ] Add donation progress bar showing API costs coverage
 - [ ] Implement "Supporter" badges for donors
 
-#### GitHub Integration  
-- [ ] Add Buy Me A Coffee button to README
-- [ ] Create FUNDING.yml for GitHub Sponsors
-- [ ] Add donation section explaining:
-  - Platform maintenance costs
-  - Firecrawl API usage fees
-  - Server and database costs
-  - Future feature development
-
 #### Transparency Dashboard
 - [ ] Show real-time API usage statistics
 - [ ] Display monthly costs breakdown
