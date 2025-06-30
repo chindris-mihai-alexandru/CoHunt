@@ -6,7 +6,7 @@ import LoginModal from '@/components/auth/LoginModal';
 import SignupModal from '@/components/auth/SignupModal';
 import EmailVerificationBanner from '@/components/auth/EmailVerificationBanner';
 import Link from 'next/link';
-import { Search, Users, Mail, BarChart3, Target, Zap, Shield, Globe } from 'lucide-react';
+import { Search, Users, Mail, BarChart3, Target, Zap, Shield, Globe, FileText, MessageSquare, Calendar } from 'lucide-react';
 
 export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -27,22 +27,25 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">CoHunt</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Inbound Recruiter Platform</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">AI-Powered Job Search</p>
               </div>
             </div>
             
             <nav className="hidden md:flex space-x-8 items-center">
               <a href="#features" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">Features</a>
               <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">How It Works</a>
-              <a href="#pricing" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">Pricing</a>
+              <a href="#recruiters" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">Find Recruiters</a>
               
               {user ? (
                 <div className="flex items-center gap-4">
                   <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">
                     Dashboard
                   </Link>
-                  <Link href="/profile" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">
-                    Profile
+                  <Link href="/jobs" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">
+                    Jobs
+                  </Link>
+                  <Link href="/applications" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">
+                    Applications
                   </Link>
                   <button
                     onClick={() => signOut()}
@@ -63,7 +66,7 @@ export default function Home() {
                     onClick={() => setShowSignupModal(true)}
                     className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg"
                   >
-                    Get Started Free
+                    Start Job Search
                   </button>
                 </div>
               )}
@@ -77,11 +80,11 @@ export default function Home() {
         <div className="pt-20 pb-16 text-center">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-              Stop Chasing
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"> Candidates</span>
+              Find Your
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"> Dream Job</span>
             </h2>
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Make top talent come to you with AI-powered inbound recruiting. Build your profile, get discovered, and close deals faster.
+              AI-powered job search that matches you with perfect opportunities and connects you with top recruiters who specialize in your field.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -89,10 +92,10 @@ export default function Home() {
                 onClick={() => setShowSignupModal(true)}
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
-                Start Building Your Profile
+                Start Your Job Search
               </button>
               <button className="px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold text-lg transition-all duration-200">
-                Watch Demo
+                Browse Recruiters
               </button>
             </div>
 
@@ -100,15 +103,15 @@ export default function Home() {
             <div className="flex flex-wrap justify-center items-center gap-8 text-gray-500 dark:text-gray-400 mb-16">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">500+ Active Recruiters</span>
+                <span className="text-sm">50k+ Job Seekers</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-sm">10k+ Candidates Matched</span>
+                <span className="text-sm">500+ Top Recruiters</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span className="text-sm">95% Response Rate</span>
+                <span className="text-sm">95% Match Success Rate</span>
               </div>
             </div>
           </div>
@@ -118,83 +121,83 @@ export default function Home() {
         <section id="features" className="py-20">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Everything You Need to Scale Your Recruiting
+              Everything You Need for Your Job Search
             </h3>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              From profile building to automated outreach, we've got your entire inbound recruiting workflow covered.
+              From AI-powered matching to application tracking, we've got your entire job search workflow covered.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {/* Email Finder */}
+            {/* AI Job Matching */}
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center mb-6">
-                <Search className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+                <Target className="w-7 h-7 text-blue-600 dark:text-blue-400" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Email Finder & Verification</h4>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">Find and verify candidate emails using Apollo.io and Hunter.io APIs. Never send to invalid addresses again.</p>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">AI-Powered Job Matching</h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Get matched with jobs that perfectly fit your skills, experience, and career goals using advanced AI algorithms.</p>
               <div className="flex items-center text-sm text-blue-600 dark:text-blue-400">
-                <span>Powered by Apollo.io + Hunter.io</span>
+                <span>Smart + Personalized + Accurate</span>
               </div>
             </div>
 
-            {/* Profile Builder */}
+            {/* Resume Tailoring */}
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="w-14 h-14 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center mb-6">
-                <Users className="w-7 h-7 text-green-600 dark:text-green-400" />
+                <FileText className="w-7 h-7 text-green-600 dark:text-green-400" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Recruiter Profile Builder</h4>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">Showcase your expertise, track record, and specializations. Make candidates want to work with you.</p>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Smart Resume Tailoring</h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Automatically customize your resume for each job application with AI-powered optimization and keyword matching.</p>
               <div className="flex items-center text-sm text-green-600 dark:text-green-400">
-                <span>Portfolio + Skills + Experience</span>
+                <span>AI-Optimized + ATS-Friendly</span>
               </div>
             </div>
 
-            {/* Smart Matching */}
+            {/* Application Tracking */}
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center mb-6">
-                <Target className="w-7 h-7 text-purple-600 dark:text-purple-400" />
+                <BarChart3 className="w-7 h-7 text-purple-600 dark:text-purple-400" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">AI-Powered Matching</h4>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">Our algorithm connects you with candidates who match your expertise and open positions.</p>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Application Tracking</h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Track all your applications, interviews, and follow-ups in one organized dashboard with automated reminders.</p>
               <div className="flex items-center text-sm text-purple-600 dark:text-purple-400">
-                <span>Smart + Automated + Precise</span>
+                <span>Organized + Automated + Efficient</span>
               </div>
             </div>
 
-            {/* Email Automation */}
+            {/* Communication Management */}
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="w-14 h-14 bg-orange-100 dark:bg-orange-900 rounded-xl flex items-center justify-center mb-6">
-                <Mail className="w-7 h-7 text-orange-600 dark:text-orange-400" />
+                <MessageSquare className="w-7 h-7 text-orange-600 dark:text-orange-400" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Automated Email Sequences</h4>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">Set up personalized email campaigns that nurture leads and convert candidates automatically.</p>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Smart Communication</h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">AI-powered email templates and communication tracking to help you follow up professionally and effectively.</p>
               <div className="flex items-center text-sm text-orange-600 dark:text-orange-400">
-                <span>Powered by Resend</span>
+                <span>Professional + Timely + Effective</span>
               </div>
             </div>
 
-            {/* Analytics */}
+            {/* Recruiter Discovery */}
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900 rounded-xl flex items-center justify-center mb-6">
-                <BarChart3 className="w-7 h-7 text-indigo-600 dark:text-indigo-400" />
+                <Users className="w-7 h-7 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Analytics Dashboard</h4>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">Track open rates, response rates, and conversion metrics. Optimize your outreach strategy with data.</p>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Find Top Recruiters</h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Connect with specialized recruiters who focus on your industry and have a proven track record of successful placements.</p>
               <div className="flex items-center text-sm text-indigo-600 dark:text-indigo-400">
-                <span>Real-time Insights</span>
+                <span>Specialized + Verified + Successful</span>
               </div>
             </div>
 
-            {/* Discovery Feed */}
+            {/* Social Intelligence */}
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="w-14 h-14 bg-pink-100 dark:bg-pink-900 rounded-xl flex items-center justify-center mb-6">
                 <Globe className="w-7 h-7 text-pink-600 dark:text-pink-400" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Recruiter Discovery</h4>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">Get discovered by top candidates browsing our recruiter marketplace. Increase your visibility.</p>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Social Intelligence</h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">Leverage LinkedIn and other platform insights to identify the best connections and optimize your networking strategy.</p>
               <div className="flex items-center text-sm text-pink-600 dark:text-pink-400">
-                <span>Marketplace + Visibility</span>
+                <span>Data-Driven + Strategic + Connected</span>
               </div>
             </div>
           </div>
@@ -207,17 +210,17 @@ export default function Home() {
               How CoHunt Works
             </h3>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Three simple steps to transform your recruiting from outbound to inbound
+              Four simple steps to land your dream job with AI-powered assistance
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white font-bold text-xl">1</span>
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Build Your Profile</h4>
-              <p className="text-gray-600 dark:text-gray-300">Showcase your expertise, track record, and the types of roles you specialize in recruiting for.</p>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Upload Your Profile</h4>
+              <p className="text-gray-600 dark:text-gray-300">Upload your resume and let our AI analyze your skills, experience, and career preferences.</p>
             </div>
 
             <div className="text-center">
@@ -225,15 +228,23 @@ export default function Home() {
                 <span className="text-white font-bold text-xl">2</span>
               </div>
               <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Get Matched</h4>
-              <p className="text-gray-600 dark:text-gray-300">Our AI connects you with candidates who are actively looking and match your specialization.</p>
+              <p className="text-gray-600 dark:text-gray-300">Our AI finds jobs and recruiters that perfectly match your profile and career goals.</p>
             </div>
 
             <div className="text-center">
               <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-white font-bold text-xl">3</span>
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Close Deals</h4>
-              <p className="text-gray-600 dark:text-gray-300">Use automated email sequences and analytics to nurture leads and close more placements.</p>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Apply Smartly</h4>
+              <p className="text-gray-600 dark:text-gray-300">Use AI-tailored resumes and professional communication templates for each application.</p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-white font-bold text-xl">4</span>
+              </div>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Land Your Job</h4>
+              <p className="text-gray-600 dark:text-gray-300">Track applications, manage communications, and get reminders to follow up at the right time.</p>
             </div>
           </div>
         </section>
@@ -242,19 +253,19 @@ export default function Home() {
         <section className="py-20 text-center">
           <div className="max-w-3xl mx-auto">
             <h3 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-              Ready to Transform Your Recruiting?
+              Ready to Find Your Dream Job?
             </h3>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Join hundreds of recruiters who've switched from outbound to inbound and 3x'd their placement rates.
+              Join thousands of job seekers who've found their perfect role with AI-powered job search and expert recruiter connections.
             </p>
             <button
               onClick={() => setShowSignupModal(true)}
               className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
             >
-              Start Your Free Trial
+              Start Your Job Search Today
             </button>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-              No credit card required • 14-day free trial • Cancel anytime
+              Free to start • AI-powered matching • Expert recruiter network
             </p>
           </div>
         </section>
