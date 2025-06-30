@@ -1,28 +1,28 @@
-# CoHunt - AI-Powered Job Matching Platform 🚀
+# CoHunt - Inbound Recruiter Platform 🎯
 
-An intelligent job search platform that uses AI to match candidates with their perfect opportunities, featuring real-time job scraping, personalized match scores, and a freemium SaaS model.
+A modern inbound recruiting platform that helps recruiters build their profile, get discovered by candidates, and automate their outreach with AI-powered matching and email sequences.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.3-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-Auth-green?logo=supabase)
 ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)
-![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-412991?logo=openai)
 
 ## 🌟 Key Features
 
-### For Job Seekers
-- **🤖 AI-Powered Matching**: Upload your resume and get personalized match scores for every job
-- **🔍 Real-Time Job Search**: Live job data from multiple sources (Indeed, LinkedIn, etc.)
-- **📊 Smart Analytics**: Track applications, view market trends, and optimize your job search
-- **💼 Resume Analysis**: AI evaluates your resume against job requirements
-- **🎯 Location-Aware**: Find jobs in your area with accurate salary data (including ISK for Iceland)
+### For Recruiters
+- **📊 Professional Profile Builder**: Showcase expertise, track record, and specializations
+- **🔍 Email Finder & Verification**: Find and verify candidate emails using Apollo.io and Hunter.io
+- **🤖 AI-Powered Matching**: Get matched with candidates based on your expertise and open roles
+- **📧 Automated Email Sequences**: Set up personalized email campaigns with Resend
+- **📈 Analytics Dashboard**: Track open rates, response rates, and placement metrics
+- **🌐 Recruiter Discovery**: Get discovered by candidates browsing the recruiter marketplace
 
 ### Technical Highlights
 - **🔐 Authentication**: Secure user accounts with Supabase Auth
 - **💾 Real Database**: PostgreSQL with Prisma ORM for reliable data storage
-- **🚦 Rate Limiting**: Free tier (3 searches/day) vs Premium (unlimited)
 - **📱 Responsive Design**: Beautiful UI with Tailwind CSS
-- **⚡ Performance**: Next.js 15 with Turbopack for blazing-fast development
+- **⚡ Performance**: Next.js 15 with modern React patterns
+- **🔌 API Integrations**: Apollo.io, Hunter.io, and Resend ready
 
 ## 🛠️ Tech Stack
 
@@ -30,15 +30,16 @@ An intelligent job search platform that uses AI to match candidates with their p
 - **Backend**: Next.js API Routes, Prisma ORM
 - **Database**: PostgreSQL (Supabase)
 - **Authentication**: Supabase Auth
-- **AI/ML**: OpenAI GPT-4 for matching, Firecrawl for web scraping
+- **Email**: Resend for delivery
+- **APIs**: Apollo.io (contacts), Hunter.io (verification)
 - **Deployment**: Vercel-ready
 
 ## 🚀 Getting Started
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/chindris-mihai-alexandru/CoHunt.git
-   cd cohunt-app
+   git clone https://github.com/your-username/cohunt.git
+   cd cohunt
    ```
 
 2. **Install dependencies**
@@ -52,8 +53,9 @@ An intelligent job search platform that uses AI to match candidates with their p
    ```
    Fill in your API keys:
    - Supabase credentials
-   - OpenAI API key
-   - Database URL
+   - Apollo.io API key
+   - Hunter.io API key
+   - Resend API key
 
 4. **Run database migrations**
    ```bash
@@ -70,83 +72,147 @@ An intelligent job search platform that uses AI to match candidates with their p
 ## 💡 Architecture
 
 ```
-cohunt-app/
+cohunt/
 ├── src/
 │   ├── app/              # Next.js app router pages
+│   │   ├── profile/      # Recruiter profile management
+│   │   ├── campaigns/    # Email campaign manager
+│   │   ├── matches/      # Candidate matching
+│   │   ├── analytics/    # Performance dashboard
+│   │   └── api/          # API routes
 │   ├── components/       # React components
 │   ├── lib/             # Utilities and configurations
-│   │   ├── supabase/    # Supabase client setup
-│   │   ├── jobs/        # Job scraping logic
-│   │   └── prisma/      # Database client
-│   └── types/           # TypeScript definitions
+│   │   ├── api/         # External API integrations
+│   │   └── supabase/    # Supabase client setup
+│   └── contexts/        # React contexts
 ├── prisma/              # Database schema
 └── public/             # Static assets
 ```
 
-## 🎯 Development Roadmap
+## 🎯 Core Pages
 
-### ✅ Completed Features
-- AI-powered job matching with OpenAI GPT-4
-- Resume upload and parsing
-- User authentication with Supabase
-- Real job data integration with Firecrawl
-- Freemium monetization model (3 searches/day free)
-- PostgreSQL database with Prisma ORM
-- Responsive Next.js 15 interface
+### Landing Page
+- Value proposition for recruiters
+- Feature highlights with modern design
+- Social proof and conversion-focused CTAs
 
-### 🚧 In Progress
+### Recruiter Profile Builder
+- Professional bio and expertise showcase
+- Performance statistics and portfolio
+- Skills, certifications, and specializations
+- Recent placement highlights
 
-#### Email Confirmation System 📧
-- Set up Resend for transactional emails
-- Implement email templates (welcome, confirmation, password reset)
-- Configure Supabase Auth to use Resend SMTP
-- Add email verification flow to signup process
+### Email Campaign Manager
+- Create and manage automated email sequences
+- Target specific roles, companies, and skills
+- Schedule and track campaign performance
+- Email template builder with personalization
 
-#### Live Job Search Integration 🔍
-- Implement real Firecrawl API integration
-- Add error handling and rate limiting
-- Cache job results to minimize API calls
-- Add fallback to database for recent searches
+### Candidate Matches
+- AI-powered candidate recommendations
+- Advanced filtering and search
+- Email verification and contact info
+- Match scoring and reasoning
 
-### 🔮 Upcoming Features
+### Analytics Dashboard
+- Email performance metrics
+- Campaign analytics and trends
+- Top performing skills and placements
+- Revenue and conversion tracking
 
-#### Platform Monetization ☕
-- Buy Me A Coffee widget integration
-- Dedicated "Support Us" page
-- Donation progress bar showing API costs coverage
-- Transparency dashboard with real-time API usage stats
+## 🔌 API Integrations
 
-#### Q2-Q3 2025
-- **Mobile app** (React Native)
-- **Browser extension** for quick job saves
-- **AI-powered cover letter generation**
-- **Interview preparation assistant**
-- **Company reviews integration**
-- **Salary insights and negotiation tips**
+### Apollo.io Integration
+```typescript
+// Find contacts by company and role
+const contacts = await apolloService.searchContacts({
+  title: 'Software Engineer',
+  company: 'TechCorp',
+  location: 'San Francisco',
+  limit: 25
+});
+```
 
-#### Technical Improvements
-- Comprehensive test suite
-- Proper logging and monitoring
-- CI/CD pipeline
-- API rate limiting per user
-- Job alert notifications
+### Hunter.io Integration
+```typescript
+// Verify email addresses
+const verification = await hunterService.verifyEmail('candidate@company.com');
+const isRecommended = hunterService.isEmailRecommended(verification);
+```
 
-### 🌩️ Cloud Infrastructure Migration
+### Resend Integration
+```typescript
+// Send personalized emails
+const result = await resendService.sendEmail({
+  to: ['candidate@company.com'],
+  from: 'recruiter@company.com',
+  subject: 'Exciting Opportunity',
+  html: personalizedTemplate
+});
+```
 
-**Status**: Planning Phase | **Timeline**: After core features are stable
+## 🎨 Design Philosophy
 
-See [Cloud Implementation Roadmap](docs/CLOUD_IMPLEMENTATION_ROADMAP.md) for detailed plans:
-- AWS Activate application strategy ($1K-$100K credits)
-- Serverless architecture with AWS Lambda
-- CDN implementation for global performance
-- Microservices migration path
+CoHunt follows modern design principles with:
+- **Clean, minimal interface** focused on conversion
+- **Apple-level design aesthetics** with attention to detail
+- **Responsive design** that works on all devices
+- **Consistent color system** with proper contrast ratios
+- **Thoughtful animations** and micro-interactions
+- **Progressive disclosure** to manage complexity
 
-### 💰 Monthly Operating Costs
-- **Firecrawl API**: $50-200 (usage-based)
-- **Supabase**: $25 (Pro tier)
-- **Resend Email**: $20 (10k emails/month)
-- **Vercel Hosting**: $20 (Pro tier)
-- **Total**: ~$115-265/month
+## 🔒 Security & Privacy
+
+- **Row Level Security (RLS)** on all database tables
+- **Email verification** required for account activation
+- **API key management** through environment variables
+- **Rate limiting** on API endpoints
+- **GDPR compliance** considerations built-in
+
+## 📊 Analytics & Metrics
+
+Track key recruiting metrics:
+- **Email Performance**: Open rates, response rates, bounce rates
+- **Campaign Analytics**: Performance by role, company, location
+- **Placement Metrics**: Success rates, time to fill, revenue
+- **Profile Performance**: Views, matches, engagement
+
+## 🚀 Deployment
+
+### Deploy on Vercel
+
+1. Push your code to a Git repository
+2. Import your project to Vercel
+3. Set up environment variables in the Vercel dashboard
+4. Your app will be deployed to a production URL
+
+### Environment Variables
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Database
+DATABASE_URL=your_postgresql_connection_string
+
+# API Keys
+APOLLO_API_KEY=your_apollo_api_key
+HUNTER_API_KEY=your_hunter_api_key
+RESEND_API_KEY=your_resend_api_key
+
+# App Configuration
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
@@ -154,10 +220,10 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Developer
 
-**Mihai-Alexandru Chindris**
-- GitHub: [@chindris-mihai-alexandru](https://github.com/chindris-mihai-alexandru)
-- LinkedIn: https://www.linkedin.com/in/mihai-chindris/
+**Built with ❤️ for the recruiting community**
+
+Transform your recruiting from outbound to inbound with CoHunt.
 
 ---
 
-Built with ❤️ using Next.js, TypeScript, and AI
+*Ready to revolutionize your recruiting? Get started today!*
