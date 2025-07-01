@@ -3,15 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
-  BarChart3, 
   TrendingUp, 
   TrendingDown, 
   Mail, 
-  Users, 
   Target, 
   Calendar,
   Eye,
-  MousePointer,
   MessageCircle,
   DollarSign
 } from 'lucide-react';
@@ -48,7 +45,7 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('30d'); // 7d, 30d, 90d, 1y
@@ -88,17 +85,6 @@ export default function AnalyticsPage() {
       setLoading(false);
     }, 1000);
   }, [timeRange]);
-
-  const getChangeIndicator = (current: number, previous: number) => {
-    const change = ((current - previous) / previous) * 100;
-    const isPositive = change > 0;
-    return {
-      value: Math.abs(change).toFixed(1),
-      isPositive,
-      icon: isPositive ? TrendingUp : TrendingDown,
-      color: isPositive ? 'text-green-600' : 'text-red-600'
-    };
-  };
 
   if (loading) {
     return (

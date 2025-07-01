@@ -18,8 +18,7 @@ export async function POST(request: NextRequest) {
       recipients, 
       subject, 
       template, 
-      campaignId,
-      scheduleFor 
+      campaignId
     } = await request.json();
 
     if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
