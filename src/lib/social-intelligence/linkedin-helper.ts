@@ -147,7 +147,7 @@ export class LinkedInHelper {
     
     message += ` I'm a ${userProfile.title} and I'm interested in connecting with professionals in the ${targetContact.company} space.`;
     
-    message += ' I'd love to chat about potential opportunities or just expand our professional networks.';
+    message += ' I\'d love to chat about potential opportunities or just expand our professional networks.';
     
     return message;
   }
