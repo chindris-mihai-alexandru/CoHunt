@@ -9,15 +9,3 @@
 # Ensure Next.js SSR functions work correctly
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-# Handle 404s properly
-[[redirects]]
-  from = "/*"
-  to = "/404"
-  status = 404
-
-# Ensure all routes are handled by Next.js
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/next"
-  status = 200
