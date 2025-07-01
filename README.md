@@ -1,6 +1,6 @@
 # CoHunt - AI-Powered Job Search Platform 🎯
 
-A modern job search platform that helps job seekers find their dream jobs using AI-powered matching, smart resume tailoring, and connections with specialized recruiters.
+A modern job search platform that leverages AI to match candidates with opportunities from top companies, startups, and the hidden job market. Built with Next.js, Supabase, and powered by advanced job scraping technology.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.3-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)
@@ -10,29 +10,29 @@ A modern job search platform that helps job seekers find their dream jobs using 
 ## 🌟 Key Features
 
 ### For Job Seekers
-- **🔍 AI-Powered Job Matching**: Get matched with jobs that perfectly fit your skills and experience
-- **📄 Smart Resume Tailoring**: Automatically customize your resume for each job application
-- **📊 Application Tracking**: Track all your applications, interviews, and follow-ups in one place
-- **📧 Communication Management**: AI-powered email templates and follow-up reminders
-- **👥 Recruiter Discovery**: Connect with specialized recruiters who focus on your industry
-- **🌐 Social Intelligence**: Leverage LinkedIn and other platform insights to optimize your networking
+- **🤖 AI-Powered Job Matching**: Advanced algorithms analyze your skills and preferences to find perfect matches
+- **🚀 Startup Job Boards**: Access exclusive opportunities from Y Combinator, WellFound (AngelList), and other startup platforms
+- **🔍 Hidden Job Market**: Discover unadvertised positions through company research and network analysis
+- **📄 Resume Analysis**: Upload your resume for personalized job matching and skill gap analysis
+- **⚡ Real-time Search**: Live scraping ensures you see the latest opportunities as they're posted
+- **🔔 Smart Job Alerts**: Get notified instantly when new jobs match your criteria
 
 ### Technical Highlights
-- **🔐 Authentication**: Secure user accounts with Supabase Auth
+- **🔐 Authentication**: Secure user accounts with Supabase Auth and email verification
 - **💾 Real Database**: PostgreSQL with Prisma ORM for reliable data storage
-- **📱 Responsive Design**: Beautiful UI with Tailwind CSS
-- **⚡ Performance**: Next.js 15 with modern React patterns
-- **🔌 API Integrations**: Firecrawl for job scraping, OpenAI for matching and analysis
+- **📱 Responsive Design**: Beautiful UI with Tailwind CSS that works on all devices
+- **⚡ Performance**: Next.js 15 with modern React patterns and optimizations
+- **🔌 API Integrations**: Firecrawl for job scraping, OpenAI for AI matching
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
 - **Backend**: Next.js API Routes, Prisma ORM
 - **Database**: PostgreSQL (Supabase)
-- **Authentication**: Supabase Auth
-- **Job Search**: Firecrawl API for scraping job listings from multiple sources
-- **AI Matching**: OpenAI for resume analysis and job matching
-- **Deployment**: Vercel-ready
+- **Authentication**: Supabase Auth with email verification
+- **Job Scraping**: Firecrawl API for real-time job data
+- **AI Matching**: OpenAI for intelligent job matching
+- **Deployment**: Vercel-ready with automatic deployments
 
 ## 🚀 Getting Started
 
@@ -53,8 +53,8 @@ A modern job search platform that helps job seekers find their dream jobs using 
    ```
    Fill in your API keys:
    - Supabase credentials
-   - OpenAI API key
    - Firecrawl API key
+   - OpenAI API key
 
 4. **Run database migrations**
    ```bash
@@ -74,86 +74,60 @@ A modern job search platform that helps job seekers find their dream jobs using 
 cohunt/
 ├── src/
 │   ├── app/              # Next.js app router pages
-│   │   ├── jobs/         # Job search and matching
-│   │   ├── applications/ # Application tracking
-│   │   ├── resume-builder/# Resume tailoring
-│   │   ├── recruiters/   # Recruiter discovery
-│   │   └── api/          # API routes
+│   │   ├── api/          # API routes for job search, auth, etc.
+│   │   ├── dashboard/    # User dashboard
+│   │   ├── profile/      # User profile management
+│   │   └── auth/         # Authentication pages
 │   ├── components/       # React components
+│   │   ├── auth/         # Authentication components
+│   │   └── ui/           # Reusable UI components
 │   ├── lib/             # Utilities and configurations
-│   │   ├── jobs/        # Job search and matching services
-│   │   ├── resume/      # Resume tailoring utilities
-│   │   ├── communication/# Email and messaging utilities
-│   │   ├── social-intelligence/# Social platform analysis
+│   │   ├── api/         # External API integrations
 │   │   └── supabase/    # Supabase client setup
 │   └── contexts/        # React contexts
-├── prisma/              # Database schema
+├── prisma/              # Database schema and migrations
 └── public/             # Static assets
 ```
 
 ## 🎯 Core Features
 
-### Job Search & Matching
-- AI-powered job matching across multiple platforms
-- Personalized job recommendations based on skills and preferences
-- Comprehensive search across LinkedIn, Indeed, Y Combinator, Wellfound, and niche job boards
-- Smart filtering by location, salary, experience level, and more
+### Job Search Engine
+- **Multi-source Aggregation**: Searches across Y Combinator, WellFound, Indeed, LinkedIn, and company career pages
+- **Real-time Scraping**: Uses Firecrawl API to get the latest job postings
+- **Smart Filtering**: Advanced filters for location, job type, salary, and experience level
+- **AI Matching**: OpenAI-powered matching with detailed explanations
 
-### Resume Builder & Tailoring
-- AI-powered resume analysis and optimization
-- Automatic keyword matching with job descriptions
-- ATS-friendly formatting suggestions
-- Multiple resume versions for different job types
+### User Experience
+- **Resume Upload**: PDF parsing for enhanced job matching
+- **Job Alerts**: Email notifications for new matching opportunities
+- **Saved Jobs**: Bookmark interesting positions for later review
+- **Application Tracking**: Track your job applications and their status
 
-### Application Tracking
-- Centralized dashboard for all applications
-- Status tracking (applied, screening, interview, offer, rejected)
-- Interview scheduling and preparation
-- Follow-up reminders and communication history
-
-### Communication Management
-- Email templates for different application stages
-- Follow-up timing recommendations
-- Communication history tracking
-- Integration with email providers
-
-### Recruiter Discovery
-- Find specialized recruiters in your field
-- View recruiter performance metrics and placement history
-- Direct messaging and connection features
-- Recruiter ratings and reviews
+### Data Sources
+- **Y Combinator Jobs**: Direct access to startup opportunities
+- **WellFound (AngelList)**: Startup and tech company positions
+- **Indeed**: Traditional job board with millions of listings
+- **LinkedIn**: Professional network job postings
+- **Company Career Pages**: Direct from company websites
+- **Hidden Job Market**: Unadvertised positions through network analysis
 
 ## 🔌 API Integrations
 
 ### Firecrawl Integration
 ```typescript
-// Find jobs across multiple platforms
+// Real-time job scraping
 const jobs = await firecrawlService.searchJobs({
-  query: 'frontend developer',
-  location: 'remote',
-  sources: ['linkedin', 'indeed', 'ycombinator', 'wellfound', 'remoteok']
+  query: 'software engineer',
+  sources: ['ycombinator', 'wellfound', 'indeed'],
+  location: 'San Francisco'
 });
 ```
 
 ### OpenAI Integration
 ```typescript
-// Calculate job match score
-const matchResult = await openaiService.calculateJobMatch({
-  resume: userResume,
-  jobDescription: job.description,
-  requirements: job.requirements
-});
+// AI-powered job matching
+const matches = await openaiService.matchJobs(userProfile, jobListings);
 ```
-
-## 🎨 Design Philosophy
-
-CoHunt follows modern design principles with:
-- **Clean, minimal interface** focused on usability
-- **Apple-level design aesthetics** with attention to detail
-- **Responsive design** that works on all devices
-- **Consistent color system** with proper contrast ratios
-- **Thoughtful animations** and micro-interactions
-- **Progressive disclosure** to manage complexity
 
 ## 🔒 Security & Privacy
 
@@ -166,10 +140,10 @@ CoHunt follows modern design principles with:
 ## 📊 Analytics & Metrics
 
 Track key job search metrics:
-- **Application Performance**: Response rates, interview rates, offer rates
-- **Job Match Quality**: Match scores, application success by match score
-- **Resume Performance**: Keyword match rates, ATS simulation scores
-- **Communication Metrics**: Response times, follow-up effectiveness
+- **Search Performance**: Query success rates, response times
+- **Job Discovery**: Sources, match accuracy, application rates
+- **User Engagement**: Search frequency, saved jobs, applications
+- **Market Insights**: Trending skills, salary ranges, locations
 
 ## 🚀 Deployment
 
@@ -191,20 +165,52 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 # Database
 DATABASE_URL=your_postgresql_connection_string
 
-# API Keys
-OPENAI_API_KEY=your_openai_api_key
+# APIs
 FIRECRAWL_API_KEY=your_firecrawl_api_key
+OPENAI_API_KEY=your_openai_api_key
 
 # App Configuration
 NEXT_PUBLIC_APP_URL=https://your-domain.com
+FREE_SEARCHES_PER_DAY=10
 ```
 
 ## 🤝 Contributing
 
-1. Create a new branch (`git checkout -b feature/amazing-feature`)
-2. Commit your changes (`git commit -m 'Add amazing feature'`)
-3. Push to the branch (`git push origin feature/amazing-feature`)
-4. Open a Pull Request
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Workflow
+
+- **Main Branch**: Production-ready code
+- **Bolt Branch**: Development and feature integration
+- **Feature Branches**: Individual feature development
+
+The GitHub Actions workflow automatically syncs branches and handles deployments.
+
+## 📈 Roadmap
+
+### Phase 1: Core Platform ✅
+- [x] Job search engine with multiple sources
+- [x] User authentication and profiles
+- [x] AI-powered job matching
+- [x] Resume upload and analysis
+
+### Phase 2: Enhanced Features 🚧
+- [ ] Advanced job alerts and notifications
+- [ ] Application tracking system
+- [ ] Salary insights and negotiation tools
+- [ ] Company research and insights
+
+### Phase 3: Premium Features 🔮
+- [ ] Premium job sources and exclusive listings
+- [ ] Career coaching and interview prep
+- [ ] Networking and referral system
+- [ ] Advanced analytics and insights
 
 ## 📄 License
 
@@ -212,9 +218,9 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Developer
 
-**Built with ❤️ for job seekers**
+**Built with ❤️ for job seekers everywhere**
 
-Transform your job search with CoHunt's AI-powered platform.
+Transform your job search with AI-powered matching and access to the hidden job market.
 
 ---
 
