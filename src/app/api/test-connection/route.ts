@@ -19,6 +19,10 @@ export async function GET() {
         openai: hasOpenAI ? 'configured' : 'missing',
         supabase: hasSupabase ? 'configured' : 'missing',
       },
+      keys: {
+        firecrawl: process.env.FIRECRAWL_API_KEY ? process.env.FIRECRAWL_API_KEY.substring(0, 5) + '...' : 'not set',
+        openai: process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.substring(0, 5) + '...' : 'not set',
+      },
       endpoints: {
         jobSearch: '/api/search-jobs',
         testConnection: '/api/test-connection',
