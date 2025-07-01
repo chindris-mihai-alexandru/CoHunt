@@ -1,6 +1,6 @@
-# CoHunt - Inbound Recruiter Platform 🎯
+# CoHunt - AI-Powered Job Search Platform 🎯
 
-A modern inbound recruiting platform that helps recruiters build their profile, get discovered by candidates, and automate their outreach with AI-powered matching and email sequences.
+A modern job search platform that helps job seekers find their dream jobs using AI-powered matching, smart resume tailoring, and connections with specialized recruiters.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.3-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)
@@ -9,20 +9,20 @@ A modern inbound recruiting platform that helps recruiters build their profile, 
 
 ## 🌟 Key Features
 
-### For Recruiters
-- **📊 Professional Profile Builder**: Showcase expertise, track record, and specializations
-- **🔍 Email Finder & Verification**: Find and verify candidate emails using Apollo.io and Hunter.io
-- **🤖 AI-Powered Matching**: Get matched with candidates based on your expertise and open roles
-- **📧 Automated Email Sequences**: Set up personalized email campaigns with Resend
-- **📈 Analytics Dashboard**: Track open rates, response rates, and placement metrics
-- **🌐 Recruiter Discovery**: Get discovered by candidates browsing the recruiter marketplace
+### For Job Seekers
+- **🔍 AI-Powered Job Matching**: Get matched with jobs that perfectly fit your skills and experience
+- **📄 Smart Resume Tailoring**: Automatically customize your resume for each job application
+- **📊 Application Tracking**: Track all your applications, interviews, and follow-ups in one place
+- **📧 Communication Management**: AI-powered email templates and follow-up reminders
+- **👥 Recruiter Discovery**: Connect with specialized recruiters who focus on your industry
+- **🌐 Social Intelligence**: Leverage LinkedIn and other platform insights to optimize your networking
 
 ### Technical Highlights
 - **🔐 Authentication**: Secure user accounts with Supabase Auth
 - **💾 Real Database**: PostgreSQL with Prisma ORM for reliable data storage
 - **📱 Responsive Design**: Beautiful UI with Tailwind CSS
 - **⚡ Performance**: Next.js 15 with modern React patterns
-- **🔌 API Integrations**: Apollo.io, Hunter.io, and Resend ready
+- **🔌 API Integrations**: Firecrawl for job scraping, OpenAI for matching and analysis
 
 ## 🛠️ Tech Stack
 
@@ -30,8 +30,8 @@ A modern inbound recruiting platform that helps recruiters build their profile, 
 - **Backend**: Next.js API Routes, Prisma ORM
 - **Database**: PostgreSQL (Supabase)
 - **Authentication**: Supabase Auth
-- **Email**: Resend for delivery
-- **APIs**: Apollo.io (contacts), Hunter.io (verification)
+- **Job Search**: Firecrawl API for scraping job listings from multiple sources
+- **AI Matching**: OpenAI for resume analysis and job matching
 - **Deployment**: Vercel-ready
 
 ## 🚀 Getting Started
@@ -53,9 +53,8 @@ A modern inbound recruiting platform that helps recruiters build their profile, 
    ```
    Fill in your API keys:
    - Supabase credentials
-   - Apollo.io API key
-   - Hunter.io API key
-   - Resend API key
+   - OpenAI API key
+   - Firecrawl API key
 
 4. **Run database migrations**
    ```bash
@@ -75,86 +74,81 @@ A modern inbound recruiting platform that helps recruiters build their profile, 
 cohunt/
 ├── src/
 │   ├── app/              # Next.js app router pages
-│   │   ├── profile/      # Recruiter profile management
-│   │   ├── campaigns/    # Email campaign manager
-│   │   ├── matches/      # Candidate matching
-│   │   ├── analytics/    # Performance dashboard
+│   │   ├── jobs/         # Job search and matching
+│   │   ├── applications/ # Application tracking
+│   │   ├── resume-builder/# Resume tailoring
+│   │   ├── recruiters/   # Recruiter discovery
 │   │   └── api/          # API routes
 │   ├── components/       # React components
 │   ├── lib/             # Utilities and configurations
-│   │   ├── api/         # External API integrations
+│   │   ├── jobs/        # Job search and matching services
+│   │   ├── resume/      # Resume tailoring utilities
+│   │   ├── communication/# Email and messaging utilities
+│   │   ├── social-intelligence/# Social platform analysis
 │   │   └── supabase/    # Supabase client setup
 │   └── contexts/        # React contexts
 ├── prisma/              # Database schema
 └── public/             # Static assets
 ```
 
-## 🎯 Core Pages
+## 🎯 Core Features
 
-### Landing Page
-- Value proposition for recruiters
-- Feature highlights with modern design
-- Social proof and conversion-focused CTAs
+### Job Search & Matching
+- AI-powered job matching across multiple platforms
+- Personalized job recommendations based on skills and preferences
+- Comprehensive search across LinkedIn, Indeed, Y Combinator, Wellfound, and niche job boards
+- Smart filtering by location, salary, experience level, and more
 
-### Recruiter Profile Builder
-- Professional bio and expertise showcase
-- Performance statistics and portfolio
-- Skills, certifications, and specializations
-- Recent placement highlights
+### Resume Builder & Tailoring
+- AI-powered resume analysis and optimization
+- Automatic keyword matching with job descriptions
+- ATS-friendly formatting suggestions
+- Multiple resume versions for different job types
 
-### Email Campaign Manager
-- Create and manage automated email sequences
-- Target specific roles, companies, and skills
-- Schedule and track campaign performance
-- Email template builder with personalization
+### Application Tracking
+- Centralized dashboard for all applications
+- Status tracking (applied, screening, interview, offer, rejected)
+- Interview scheduling and preparation
+- Follow-up reminders and communication history
 
-### Candidate Matches
-- AI-powered candidate recommendations
-- Advanced filtering and search
-- Email verification and contact info
-- Match scoring and reasoning
+### Communication Management
+- Email templates for different application stages
+- Follow-up timing recommendations
+- Communication history tracking
+- Integration with email providers
 
-### Analytics Dashboard
-- Email performance metrics
-- Campaign analytics and trends
-- Top performing skills and placements
-- Revenue and conversion tracking
+### Recruiter Discovery
+- Find specialized recruiters in your field
+- View recruiter performance metrics and placement history
+- Direct messaging and connection features
+- Recruiter ratings and reviews
 
 ## 🔌 API Integrations
 
-### Apollo.io Integration
+### Firecrawl Integration
 ```typescript
-// Find contacts by company and role
-const contacts = await apolloService.searchContacts({
-  title: 'Software Engineer',
-  company: 'TechCorp',
-  location: 'San Francisco',
-  limit: 25
+// Find jobs across multiple platforms
+const jobs = await firecrawlService.searchJobs({
+  query: 'frontend developer',
+  location: 'remote',
+  sources: ['linkedin', 'indeed', 'ycombinator', 'wellfound', 'remoteok']
 });
 ```
 
-### Hunter.io Integration
+### OpenAI Integration
 ```typescript
-// Verify email addresses
-const verification = await hunterService.verifyEmail('candidate@company.com');
-const isRecommended = hunterService.isEmailRecommended(verification);
-```
-
-### Resend Integration
-```typescript
-// Send personalized emails
-const result = await resendService.sendEmail({
-  to: ['candidate@company.com'],
-  from: 'recruiter@company.com',
-  subject: 'Exciting Opportunity',
-  html: personalizedTemplate
+// Calculate job match score
+const matchResult = await openaiService.calculateJobMatch({
+  resume: userResume,
+  jobDescription: job.description,
+  requirements: job.requirements
 });
 ```
 
 ## 🎨 Design Philosophy
 
 CoHunt follows modern design principles with:
-- **Clean, minimal interface** focused on conversion
+- **Clean, minimal interface** focused on usability
 - **Apple-level design aesthetics** with attention to detail
 - **Responsive design** that works on all devices
 - **Consistent color system** with proper contrast ratios
@@ -171,11 +165,11 @@ CoHunt follows modern design principles with:
 
 ## 📊 Analytics & Metrics
 
-Track key recruiting metrics:
-- **Email Performance**: Open rates, response rates, bounce rates
-- **Campaign Analytics**: Performance by role, company, location
-- **Placement Metrics**: Success rates, time to fill, revenue
-- **Profile Performance**: Views, matches, engagement
+Track key job search metrics:
+- **Application Performance**: Response rates, interview rates, offer rates
+- **Job Match Quality**: Match scores, application success by match score
+- **Resume Performance**: Keyword match rates, ATS simulation scores
+- **Communication Metrics**: Response times, follow-up effectiveness
 
 ## 🚀 Deployment
 
@@ -198,9 +192,8 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 DATABASE_URL=your_postgresql_connection_string
 
 # API Keys
-APOLLO_API_KEY=your_apollo_api_key
-HUNTER_API_KEY=your_hunter_api_key
-RESEND_API_KEY=your_resend_api_key
+OPENAI_API_KEY=your_openai_api_key
+FIRECRAWL_API_KEY=your_firecrawl_api_key
 
 # App Configuration
 NEXT_PUBLIC_APP_URL=https://your-domain.com
@@ -208,11 +201,10 @@ NEXT_PUBLIC_APP_URL=https://your-domain.com
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Create a new branch (`git checkout -b feature/amazing-feature`)
+2. Commit your changes (`git commit -m 'Add amazing feature'`)
+3. Push to the branch (`git push origin feature/amazing-feature`)
+4. Open a Pull Request
 
 ## 📄 License
 
@@ -220,10 +212,10 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Developer
 
-**Built with ❤️ for the recruiting community**
+**Built with ❤️ for job seekers**
 
-Transform your recruiting from outbound to inbound with CoHunt.
+Transform your job search with CoHunt's AI-powered platform.
 
 ---
 
-*Ready to revolutionize your recruiting? Get started today!*
+*Ready to find your dream job? Get started today!*
