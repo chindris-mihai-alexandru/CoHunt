@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { PrismaClient, Prisma } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 // Get all applications for the current user
 export async function GET(request: NextRequest) {
@@ -74,8 +73,6 @@ export async function GET(request: NextRequest) {
       { error: error instanceof Error ? error.message : 'Failed to get applications' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -132,8 +129,6 @@ export async function PATCH(request: NextRequest) {
       { error: error instanceof Error ? error.message : 'Failed to update application' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -180,7 +175,5 @@ export async function DELETE(request: NextRequest) {
       { error: error instanceof Error ? error.message : 'Failed to delete application' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

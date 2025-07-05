@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,8 +69,6 @@ export async function POST(request: NextRequest) {
       { error: error instanceof Error ? error.message : 'Failed to save job' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -94,6 +90,20 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
     }
 
+    // Check if saved job exists
+    const savedJob = await prisma.savedJob.findUnique({
+      where: {
+        userId_jobId: {
+          userId: user.id,
+          jobId
+        }
+      }
+    });
+
+    if (!savedJob) {
+      return NextResponse.json({ error: 'Saved job not found' }, { status: 404 });
+    }
+
     // Delete saved job
     await prisma.savedJob.delete({
       where: {
@@ -111,7 +121,5 @@ export async function DELETE(request: NextRequest) {
       { error: error instanceof Error ? error.message : 'Failed to unsave job' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
