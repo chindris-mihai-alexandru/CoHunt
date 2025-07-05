@@ -42,18 +42,31 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading dashboard data
-    setTimeout(() => {
-      setStats({
-        jobsApplied: 23,
-        interviewsScheduled: 5,
-        responseRate: 68,
-        profileViews: 147,
-        savedJobs: 12,
-        activeApplications: 8
-      });
-      setLoading(false);
-    }, 1000);
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/user/stats');
+        if (!response.ok) {
+          throw new Error('Failed to fetch stats');
+        }
+        const data = await response.json();
+        setStats(data.stats);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        // Set default values on error
+        setStats({
+          jobsApplied: 0,
+          interviewsScheduled: 0,
+          responseRate: 0,
+          profileViews: 0,
+          savedJobs: 0,
+          activeApplications: 0
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
   }, []);
 
   if (loading) {
